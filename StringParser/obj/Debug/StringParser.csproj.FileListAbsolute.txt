@@ -1,0 +1,5 @@
+d:\dev\StringParser\StringParser\bin\Debug\StringParser.dll
+d:\dev\StringParser\StringParser\bin\Debug\StringParser.pdb
+d:\dev\StringParser\StringParser\obj\Debug\StringParser.csprojResolveAssemblyReference.cache
+d:\dev\StringParser\StringParser\obj\Debug\StringParser.dll
+d:\dev\StringParser\StringParser\obj\Debug\StringParser.pdb
