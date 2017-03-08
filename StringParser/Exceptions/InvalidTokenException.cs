@@ -1,20 +1,27 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using StringParser.Util;
+using System;
 
 namespace StringParser.Exceptions
 {
+    /// <summary>
+    /// Exception when an unknown token is found
+    /// </summary>
     public class InvalidTokenException : Exception
     {
-        public readonly int Index;
+        /// <summary>
+        /// The string that was unrecognized
+        /// </summary>
         public readonly string Token;
 
-        public InvalidTokenException(int index, string token) : base($"Invalid token '{token}' found at index {index}")
+        /// <summary>
+        /// Index within the source string where the token was found
+        /// </summary>
+        public readonly Span SourceMap;
+
+        public InvalidTokenException(string token, Span sourceMap) : base($"Invalid token '{token}' found at index {sourceMap.Start}")
         {
-            Index = index;
             Token = token;
+            SourceMap = sourceMap;
         }
     }
 }
