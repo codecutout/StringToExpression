@@ -10,13 +10,13 @@ namespace StringParser.Parser
 {
     public class Operator
     {
-        public readonly Action<ParseState> Execute;
+        public readonly Action Execute;
 
         public readonly StringSegment SourceMap;
 
         public readonly GrammerDefinition Definition;
 
-        public Operator(GrammerDefinition definition, StringSegment sourceMap, Action<ParseState> execute)
+        public Operator(GrammerDefinition definition, StringSegment sourceMap, Action execute)
         {
             this.Execute = execute;
             this.SourceMap = sourceMap;

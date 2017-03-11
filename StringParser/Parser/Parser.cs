@@ -28,7 +28,7 @@ namespace StringParser.Parser
             while (state.Operators.Count > 0)
             {
                 var op = state.Operators.Pop();
-                op.Execute(state);
+                op.Execute();
             }
 
             if (state.Operands.Count != 1)

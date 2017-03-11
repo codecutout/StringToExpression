@@ -24,8 +24,19 @@ namespace StringParser.TokenDefinitions
 
         public readonly IReadOnlyList<RelativePosition> ParamaterPositions;
 
+        public readonly int? OperatorPrecedence;
+
+        public OperatorDefinition(string name,
+           string regex,
+           IEnumerable<RelativePosition> paramaterPositions,
+           Func<Expression[], Expression> expressionBuilder)
+           : this(name, regex, null, paramaterPositions, expressionBuilder)
+        {
+        }
+
         public OperatorDefinition(string name, 
-            string regex, 
+            string regex,
+            int? operatorPrecedence, 
             IEnumerable<RelativePosition> paramaterPositions, 
             Func<Expression[], Expression> expressionBuilder)
             : base(name, regex)
@@ -37,16 +48,27 @@ namespace StringParser.TokenDefinitions
 
             ParamaterPositions = paramaterPositions.ToList().AsReadOnly();
             ExpressionBuilder = expressionBuilder;
+            OperatorPrecedence = operatorPrecedence;
         }
 
         public override void Apply(Token token, ParseState state)
         {
+            //Apply previous operators if they have a high precedence
+            if(state.Operators.Count > 0 && this.OperatorPrecedence != null)
+            {
+                var nextOperator = state.Operators.Peek().Definition as OperatorDefinition;
+                var prevOperatorPrecedence = nextOperator?.OperatorPrecedence;
+                if(prevOperatorPrecedence >= this.OperatorPrecedence)
+                {
+                    state.Operators.Pop().Execute();
+                }
+            }
             
 
-            state.Operators.Push(new Operator(this, token.SourceMap, parseState =>
+            state.Operators.Push(new Operator(this, token.SourceMap, () =>
             {
                 //Pop all our right arguments, and check there is the correct number and they are all to the right
-                var rightArgs = new Stack<Operand>(parseState.Operands.PopWhile(x => x.SourceMap.IsRightOf(token.SourceMap)));
+                var rightArgs = new Stack<Operand>(state.Operands.PopWhile(x => x.SourceMap.IsRightOf(token.SourceMap)));
                 var expectedRightArgs = this.ParamaterPositions.Count(x => x == RelativePosition.Right);
                 if (expectedRightArgs > 0 && rightArgs.Count > expectedRightArgs)
                 {
@@ -63,9 +85,9 @@ namespace StringParser.TokenDefinitions
 
 
                 //Pop all our left arguments, and check they are not to the left of the next operator
-                var nextOperatorEndIndex = parseState.Operators.Count == 0 ? 0 : parseState.Operators.Peek().SourceMap.End;
+                var nextOperatorEndIndex = state.Operators.Count == 0 ? 0 : state.Operators.Peek().SourceMap.End;
                 var expectedLeftArgs = this.ParamaterPositions.Count(x => x == RelativePosition.Left);
-                var leftArgs = new Stack<Operand>(parseState.Operands
+                var leftArgs = new Stack<Operand>(state.Operands
                     .PopWhile((x,i) => i < expectedLeftArgs && x.SourceMap.IsRightOf(nextOperatorEndIndex)
                 ));
                 if (leftArgs.Count < expectedLeftArgs)
@@ -89,7 +111,7 @@ namespace StringParser.TokenDefinitions
                 //our new source map will encompass this operator and all its operands
                 var sourceMapSpan = StringSegment.Encompass(new[] { token.SourceMap }.Concat(args.Select(x => x.SourceMap)));
 
-                parseState.Operands.Push(new Operand(expression, sourceMapSpan));
+                state.Operands.Push(new Operand(expression, sourceMapSpan));
             }));
         }
     }

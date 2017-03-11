@@ -76,5 +76,33 @@ namespace StringParser.Test
         }
 
 
+        [Fact]
+        public void Should_obey_operator_precedence()
+        {
+            var language = new Language(
+                new OperatorDefinition(
+                    name: "PLUS",
+                    regex: @"\+",
+                    operatorPrecedence: 1,
+                    paramaterPositions: new[] { RelativePosition.Left, RelativePosition.Right },
+                    expressionBuilder: args => Expression.Add(args[0], args[1])),
+                  new OperatorDefinition(
+                    name: "MULTIPLY",
+                    regex: @"\*",
+                    operatorPrecedence: 2,
+                    paramaterPositions: new[] { RelativePosition.Left, RelativePosition.Right },
+                    expressionBuilder: args => Expression.Multiply(args[0], args[1])),
+                new OperandDefinition(
+                    name: "NUMBER",
+                    regex: @"\d*\.?\d+?",
+                    expressionBuilder: x => Expression.Constant(decimal.Parse(x))),
+                new GrammerDefinition(name: "WHITESPACE", regex: @"\s+", ignore: true)
+                );
+
+            var expression = language.ParseFunc<decimal>("1 + 2 * 3 + 5");
+            Assert.Equal(12, expression.Compile()());
+        }
+
+
     }
 }
