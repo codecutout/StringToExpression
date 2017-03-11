@@ -12,11 +12,18 @@ namespace StringParser.Tokenizer
         /// <summary>
         /// Configuration of the tokens
         /// </summary>
-        public readonly IReadOnlyList<TokenDefinition> TokenDefinitions;
+        public readonly IReadOnlyList<GrammerDefinition> TokenDefinitions;
 
-        public Tokenizer(params TokenDefinition[] tokenDefintions)
+        /// <summary>
+        /// Regex to identify tokens
+        /// </summary>
+        protected readonly Regex TokenRegex;
+
+        public Tokenizer(params GrammerDefinition[] tokenDefintions)
         {
             TokenDefinitions = tokenDefintions.ToList().AsReadOnly();
+            var pattern = string.Join("|", TokenDefinitions.Select(x => $"(?<{x.Name}>{x.Regex})"));
+            this.TokenRegex = new Regex(pattern);
         }
 
         /// <summary>
@@ -26,18 +33,13 @@ namespace StringParser.Tokenizer
         /// <returns>stream of tokens</returns>
         public IEnumerable<Token> Tokenize(string text)
         {
-            var pattern = string.Join("|", TokenDefinitions.Select(x => $"(?<{x.Name}>{x.Regex})"));
-            var regex = new Regex(pattern);
+            var matches = TokenRegex.Matches(text).OfType<Match>();
 
-            var test = regex.GroupNameFromNumber(1);
-            var matches = regex.Matches(text).OfType<Match>();
-
-            var tokenIndex = 0;
             var expectedIndex = 0;
             foreach (var match in matches)
             {
                 if (match.Index > expectedIndex)
-                    throw new InvalidTokenException(text.Substring(expectedIndex, match.Index - expectedIndex), new Span(expectedIndex, match.Index));
+                    throw new TokenUnexpectedException(new StringSegment(text, expectedIndex, match.Index - expectedIndex));
                 expectedIndex = match.Index + match.Length;
 
                 var matchedTokenDefinition = TokenDefinitions.FirstOrDefault(x => match.Groups[x.Name].Success);
@@ -47,8 +49,7 @@ namespace StringParser.Tokenizer
                 yield return new Token(
                     definition: matchedTokenDefinition,
                     value: match.Value,
-                    tokenIndex: tokenIndex++,
-                    sourceMap: new Span(match.Index, match.Index + match.Length));
+                    sourceMap: new StringSegment(text, match.Index, match.Length));
             };
 
         }

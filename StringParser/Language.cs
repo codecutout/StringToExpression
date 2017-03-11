@@ -1,4 +1,5 @@
 ﻿using StringParser.TokenDefinitions;
+using System;
 using System.Collections.Generic;
 using System.Linq.Expressions;
 
@@ -12,7 +13,7 @@ namespace StringParser
         /// <summary>
         /// Configuration used to create the language
         /// </summary>
-        public IReadOnlyList<TokenDefinition> TokenDefinitions => Tokenizer.TokenDefinitions;
+        public IReadOnlyList<GrammerDefinition> TokenDefinitions => Tokenizer.TokenDefinitions;
 
         /// <summary>
         /// Tokenizer to generate tokens
@@ -22,12 +23,12 @@ namespace StringParser
         /// <summary>
         /// Parser to convert tokens into an expression
         /// </summary>
-        //public readonly Parser.Parser Parser;
+        public readonly Parser.Parser Parser;
 
-        public Language(params TokenDefinition[] tokenDefintions)
+        public Language(params GrammerDefinition[] tokenDefintions)
         {
             Tokenizer = new Tokenizer.Tokenizer(tokenDefintions);
-            //Parser = new Parser.Parser();
+            Parser = new Parser.Parser();
         }
 
         /// <summary>
@@ -38,8 +39,15 @@ namespace StringParser
         public Expression Parse(string text)
         {
             var tokenStream = this.Tokenizer.Tokenize(text);
-            //TODO: var expression = Parser.Parse(tokenStream);
-            return null;
+            var expression = Parser.Parse(tokenStream);
+            return expression;
         }
+
+        public Expression<Func<TOut>> ParseFunc<TOut>(string text)
+        {
+            var body = this.Parse(text);
+            return Expression.Lambda<Func<TOut>>(body);
+        }
+
     }
 }
