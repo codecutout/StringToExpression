@@ -1,4 +1,5 @@
-﻿using StringParser.Util;
+﻿using StringParser.TokenDefinitions;
+using StringParser.Util;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -13,10 +14,13 @@ namespace StringParser.Parser
 
         public readonly StringSegment SourceMap;
 
-        public Operator(Action<ParseState> execute, StringSegment sourceMap)
+        public readonly GrammerDefinition Definition;
+
+        public Operator(GrammerDefinition definition, StringSegment sourceMap, Action<ParseState> execute)
         {
             this.Execute = execute;
             this.SourceMap = sourceMap;
+            this.Definition = definition;
         }
     }
 }

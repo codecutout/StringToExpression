@@ -24,7 +24,10 @@ namespace StringParser.TokenDefinitions
 
         public readonly IReadOnlyList<RelativePosition> ParamaterPositions;
 
-        public OperatorDefinition(string name, string regex, IEnumerable<RelativePosition> paramaterPositions, Func<Expression[], Expression> expressionBuilder)
+        public OperatorDefinition(string name, 
+            string regex, 
+            IEnumerable<RelativePosition> paramaterPositions, 
+            Func<Expression[], Expression> expressionBuilder)
             : base(name, regex)
         {
             if (paramaterPositions == null)
@@ -40,7 +43,7 @@ namespace StringParser.TokenDefinitions
         {
             
 
-            state.Operators.Push(new Operator(parseState =>
+            state.Operators.Push(new Operator(this, token.SourceMap, parseState =>
             {
                 //Pop all our right arguments, and check there is the correct number and they are all to the right
                 var rightArgs = new Stack<Operand>(parseState.Operands.PopWhile(x => x.SourceMap.IsRightOf(token.SourceMap)));
@@ -87,7 +90,7 @@ namespace StringParser.TokenDefinitions
                 var sourceMapSpan = StringSegment.Encompass(new[] { token.SourceMap }.Concat(args.Select(x => x.SourceMap)));
 
                 parseState.Operands.Push(new Operand(expression, sourceMapSpan));
-            }, token.SourceMap));
+            }));
         }
     }
 }
