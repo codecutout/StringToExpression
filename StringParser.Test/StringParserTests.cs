@@ -29,7 +29,7 @@ namespace StringParser.Test
                 new GrammerDefinition(name: "WHITESPACE", regex: @"\s+", ignore: true)
                 );
            
-            var expression = language.ParseFunc<decimal>("1 + 2 + 3 + 5");
+            var expression = language.Parse<decimal>("1 + 2 + 3 + 5");
             Assert.Equal(11, expression.Compile()());
         }
 
@@ -49,7 +49,7 @@ namespace StringParser.Test
                 new GrammerDefinition(name: "WHITESPACE", regex: @"\s+", ignore: true)
                 );
 
-            var exception = Assert.Throws<OperandExpectedException>(() => language.ParseFunc<decimal>("1 + + 5"));
+            var exception = Assert.Throws<OperandExpectedException>(() => language.Parse<decimal>("1 + + 5"));
             Assert.Equal("1 + [+] 5", exception.OperatorStringSegment.Highlight());
             Assert.Equal("1 + []+ 5", exception.ExpectedOperandStringSegment.Highlight());
         }
@@ -70,7 +70,7 @@ namespace StringParser.Test
                 new GrammerDefinition(name: "WHITESPACE", regex: @"\s+", ignore: true)
                 );
 
-            var exception = Assert.Throws<OperandUnexpectedException>(() => language.ParseFunc<decimal>("1 + 5 5"));
+            var exception = Assert.Throws<OperandUnexpectedException>(() => language.Parse<decimal>("1 + 5 5"));
             Assert.Equal("1 [+] 5 5", exception.OperatorStringSegment.Highlight());
             Assert.Equal("1 + 5 [5]", exception.UnexpectedOperandStringSegment.Highlight());
         }
@@ -83,13 +83,13 @@ namespace StringParser.Test
                 new OperatorDefinition(
                     name: "PLUS",
                     regex: @"\+",
-                    operatorPrecedence: 1,
+                    orderOfPrecedence: 2,
                     paramaterPositions: new[] { RelativePosition.Left, RelativePosition.Right },
                     expressionBuilder: args => Expression.Add(args[0], args[1])),
                   new OperatorDefinition(
                     name: "MULTIPLY",
                     regex: @"\*",
-                    operatorPrecedence: 2,
+                    orderOfPrecedence: 1,
                     paramaterPositions: new[] { RelativePosition.Left, RelativePosition.Right },
                     expressionBuilder: args => Expression.Multiply(args[0], args[1])),
                 new OperandDefinition(
@@ -99,8 +99,113 @@ namespace StringParser.Test
                 new GrammerDefinition(name: "WHITESPACE", regex: @"\s+", ignore: true)
                 );
 
-            var expression = language.ParseFunc<decimal>("1 + 2 * 3 + 5");
+            var expression = language.Parse<decimal>("1 + 2 * 3 + 5");
             Assert.Equal(12, expression.Compile()());
+        }
+
+        [Fact]
+        public void Should_apply_brackets()
+        {
+            BracketOpenDefinition openBracket;
+            var language = new Language(
+                new OperatorDefinition(
+                    name: "PLUS",
+                    regex: @"\+",
+                    orderOfPrecedence: 1,
+                    paramaterPositions: new[] { RelativePosition.Left, RelativePosition.Right },
+                    expressionBuilder: args => Expression.Add(args[0], args[1])),
+                  new OperatorDefinition(
+                    name: "MULTIPLY",
+                    regex: @"\*",
+                    orderOfPrecedence: 2,
+                    paramaterPositions: new[] { RelativePosition.Left, RelativePosition.Right },
+                    expressionBuilder: args => Expression.Multiply(args[0], args[1])),
+                openBracket = new BracketOpenDefinition(
+                    name: "OPENBRACKET",
+                    regex: @"\("),
+                new BracketCloseDefinition(
+                    name: "CLOSEBRACKET",
+                    regex: @"\)",
+                    bracketOpenDefinition: openBracket),
+                new OperandDefinition(
+                    name: "NUMBER",
+                    regex: @"\d*\.?\d+?",
+                    expressionBuilder: x => Expression.Constant(decimal.Parse(x))),
+                new GrammerDefinition(name: "WHITESPACE", regex: @"\s+", ignore: true)
+                );
+
+            var expression = language.Parse<decimal>("(1 + 2) * (3 + 5)");
+            Assert.Equal(24, expression.Compile()());
+        }
+
+        [Fact]
+        public void Should_run_single_param_functions()
+        {
+            BracketOpenDefinition openBracket;
+            var language = new Language(
+                new OperatorDefinition(
+                    name: "PLUS",
+                    regex: @"\+",
+                    orderOfPrecedence: 10,
+                    paramaterPositions: new[] { RelativePosition.Left, RelativePosition.Right },
+                    expressionBuilder: args => Expression.Add(args[0], args[1])),
+                  new OperatorDefinition(
+                    name: "SIN",
+                    regex: @"sin",
+                    orderOfPrecedence: 1,
+                    paramaterPositions: new[] { RelativePosition.Right },
+                    expressionBuilder: args => Expression.Call(typeof(Math).GetMethod("Sin"), args[0])),
+                openBracket = new BracketOpenDefinition(
+                    name: "OPENBRACKET",
+                    regex: @"\("),
+                new BracketCloseDefinition(
+                    name: "CLOSEBRACKET",
+                    regex: @"\)",
+                    bracketOpenDefinition: openBracket),
+                new OperandDefinition(
+                    name: "NUMBER",
+                    regex: @"\d*\.?\d+?",
+                    expressionBuilder: x => Expression.Constant(double.Parse(x))),
+                new GrammerDefinition(name: "WHITESPACE", regex: @"\s+", ignore: true)
+                );
+
+            var expression = language.Parse<double>("sin(1+2)+3");
+            Assert.Equal(3.14, expression.Compile()(), 2);
+        }
+
+        //[Fact]
+        public void Should_run_two_param_functions()
+        {
+            BracketOpenDefinition openBracket;
+            var language = new Language(
+                new OperatorDefinition(
+                    name: "PLUS",
+                    regex: @"\+",
+                    orderOfPrecedence: 1,
+                    paramaterPositions: new[] { RelativePosition.Left, RelativePosition.Right },
+                    expressionBuilder: args => Expression.Add(args[0], args[1])),
+                  new OperatorDefinition(
+                    name: "LOG",
+                    regex: @"[Ll]og",
+                    orderOfPrecedence: 10,
+                    paramaterPositions: new[] { RelativePosition.Right, RelativePosition.Right },
+                    expressionBuilder: args => Expression.Call(typeof(Math).GetMethod("Log"), args)),
+                openBracket = new BracketOpenDefinition(
+                    name: "OPENBRACKET",
+                    regex: @"\("),
+                new BracketCloseDefinition(
+                    name: "CLOSEBRACKET",
+                    regex: @"\)",
+                    bracketOpenDefinition: openBracket),
+                new OperandDefinition(
+                    name: "NUMBER",
+                    regex: @"\d*\.?\d+?",
+                    expressionBuilder: x => Expression.Constant(double.Parse(x))),
+                new GrammerDefinition(name: "WHITESPACE", regex: @"\s+", ignore: true)
+                );
+
+            var expression = language.Parse<double>("Log(1024,2) + 5");
+            Assert.Equal(15, expression.Compile()());
         }
 
 

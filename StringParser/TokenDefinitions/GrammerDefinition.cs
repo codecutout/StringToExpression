@@ -27,7 +27,7 @@ namespace StringParser.TokenDefinitions
         public GrammerDefinition(string name, string regex, bool ignore = false)
         {
             if (!NameValidation.IsMatch(name))
-                throw new InvalidGrammerNameException(name);
+                throw new GrammerDefinitionInvalidNameException(name);
 
             this.Name = name;
             this.Regex = regex;

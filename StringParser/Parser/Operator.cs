@@ -22,5 +22,10 @@ namespace StringParser.Parser
             this.SourceMap = sourceMap;
             this.Definition = definition;
         }
+
+        public override string ToString()
+        {
+            return SourceMap.Value;
+        }
     }
 }

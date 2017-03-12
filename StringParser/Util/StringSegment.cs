@@ -56,7 +56,7 @@ namespace StringParser.Util
                 throw new ArgumentNullException(nameof(segment));
             if (this.SourceString != segment.SourceString)
                 throw new ArgumentException($"{nameof(segment)} must have the same source string", nameof(segment));
-            return End >= segment.Start;
+            return segment.End <= Start;
         }
 
         /// <summary>
@@ -66,7 +66,7 @@ namespace StringParser.Util
         /// <returns></returns>
         public bool IsRightOf(int index)
         {
-            return End >= index;
+            return Start >= index;
         }
 
         /// <summary>
@@ -80,7 +80,7 @@ namespace StringParser.Util
                 throw new ArgumentNullException(nameof(segment));
             if (this.SourceString != segment.SourceString)
                 throw new ArgumentException($"{nameof(segment)} must have the same source string", nameof(segment));
-            return Start <= segment.End;
+            return segment.Start <= End;
         }
 
         /// <summary>
@@ -90,7 +90,7 @@ namespace StringParser.Util
         /// <returns></returns>
         public bool IsLeftOf(int index)
         {
-            return Start <= index;
+            return End <= index;
         }
 
 

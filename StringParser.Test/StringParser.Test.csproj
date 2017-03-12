@@ -33,6 +33,14 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="Antlr3.Runtime, Version=3.5.0.2, Culture=neutral, PublicKeyToken=eb42632606e9261f, processorArchitecture=MSIL">
+      <HintPath>..\packages\Antlr.3.5.0.2\lib\Antlr3.Runtime.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="LinqToQuerystring, Version=0.7.0.8, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\LinqToQuerystring.0.7.0.8\lib\net35\LinqToQuerystring.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
     <Reference Include="System.Xml.Linq" />
@@ -59,6 +67,8 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Fixtures\LinqToQuerystringFixture.cs" />
+    <Compile Include="ODataFilterTests.cs" />
     <Compile Include="StringParserTests.cs" />
     <Compile Include="StringTokenizerTests.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

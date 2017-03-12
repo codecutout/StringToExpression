@@ -24,7 +24,7 @@ namespace StringParser.TokenDefinitions
 
         public readonly IReadOnlyList<RelativePosition> ParamaterPositions;
 
-        public readonly int? OperatorPrecedence;
+        public readonly int? OrderOfPrecedence;
 
         public OperatorDefinition(string name,
            string regex,
@@ -36,7 +36,7 @@ namespace StringParser.TokenDefinitions
 
         public OperatorDefinition(string name, 
             string regex,
-            int? operatorPrecedence, 
+            int? orderOfPrecedence, 
             IEnumerable<RelativePosition> paramaterPositions, 
             Func<Expression[], Expression> expressionBuilder)
             : base(name, regex)
@@ -48,17 +48,17 @@ namespace StringParser.TokenDefinitions
 
             ParamaterPositions = paramaterPositions.ToList().AsReadOnly();
             ExpressionBuilder = expressionBuilder;
-            OperatorPrecedence = operatorPrecedence;
+            OrderOfPrecedence = orderOfPrecedence;
         }
 
         public override void Apply(Token token, ParseState state)
         {
             //Apply previous operators if they have a high precedence
-            if(state.Operators.Count > 0 && this.OperatorPrecedence != null)
+            if(state.Operators.Count > 0 && this.OrderOfPrecedence != null)
             {
                 var nextOperator = state.Operators.Peek().Definition as OperatorDefinition;
-                var prevOperatorPrecedence = nextOperator?.OperatorPrecedence;
-                if(prevOperatorPrecedence >= this.OperatorPrecedence)
+                var prevOperatorPrecedence = nextOperator?.OrderOfPrecedence;
+                if(prevOperatorPrecedence <= this.OrderOfPrecedence)
                 {
                     state.Operators.Pop().Execute();
                 }

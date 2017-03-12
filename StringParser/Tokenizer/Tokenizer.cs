@@ -1,6 +1,7 @@
 ﻿using StringParser.Exceptions;
 using StringParser.TokenDefinitions;
 using StringParser.Util;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text.RegularExpressions;
@@ -19,9 +20,15 @@ namespace StringParser.Tokenizer
         /// </summary>
         protected readonly Regex TokenRegex;
 
-        public Tokenizer(params GrammerDefinition[] tokenDefintions)
+        public Tokenizer(params GrammerDefinition[] grammerDefinitions)
         {
-            TokenDefinitions = tokenDefintions.ToList().AsReadOnly();
+            //throw if we have any duplicates
+            var duplicateKey = grammerDefinitions.GroupBy(x => x.Name).FirstOrDefault(g => g.Count() > 1)?.Key;
+            if (duplicateKey != null)
+                throw new GrammerDefinitionDuplicateNameException(duplicateKey);
+
+            TokenDefinitions = grammerDefinitions.ToList().AsReadOnly();
+
             var pattern = string.Join("|", TokenDefinitions.Select(x => $"(?<{x.Name}>{x.Regex})"));
             this.TokenRegex = new Regex(pattern);
         }

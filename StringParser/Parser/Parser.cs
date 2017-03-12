@@ -11,9 +11,12 @@ namespace StringParser.Parser
 {
     public class Parser
     {
-        public Expression Parse(IEnumerable<Token> tokens)
+        public Expression Parse(IEnumerable<Token> tokens, IEnumerable<ParameterExpression> parameters = null)
         {
+            parameters = parameters ?? Enumerable.Empty<ParameterExpression>();
+
             var compileState = new ParseState();
+            compileState.Parameters.AddRange(parameters);
             foreach (var token in tokens)
             {
                 token.Definition.Apply(token, compileState);

@@ -1,6 +1,7 @@
 ﻿using StringParser.TokenDefinitions;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Linq.Expressions;
 
 namespace StringParser
@@ -36,18 +37,25 @@ namespace StringParser
         /// </summary>
         /// <param name="text">input string</param>
         /// <returns>expression that represents the string</returns>
-        public Expression Parse(string text)
+        protected Expression Parse(string text, params ParameterExpression[] parameters)
         {
             var tokenStream = this.Tokenizer.Tokenize(text);
-            var expression = Parser.Parse(tokenStream);
+            var expression = Parser.Parse(tokenStream, parameters);
             return expression;
         }
 
-        public Expression<Func<TOut>> ParseFunc<TOut>(string text)
+        public Expression<Func<TOut>> Parse<TOut>(string text)
         {
             var body = this.Parse(text);
             return Expression.Lambda<Func<TOut>>(body);
         }
 
+        public Expression<Func<TIn, TOut>> Parse<TIn, TOut>(string text)
+        {
+            var parameters = new[] { Expression.Parameter(typeof(TIn)) };
+            var body = this.Parse(text, parameters);
+
+            return Expression.Lambda<Func<TIn, TOut>>(body, parameters);
+        }
     }
 }

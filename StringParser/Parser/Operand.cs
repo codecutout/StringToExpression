@@ -19,5 +19,10 @@ namespace StringParser.Parser
             this.Expression = expression;
             this.SourceMap = sourceMap;
         }
+
+        public override string ToString()
+        {
+            return SourceMap.Value;
+        }
     }
 }

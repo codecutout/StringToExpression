@@ -154,8 +154,8 @@ namespace StringParser.Test
         [Fact]
         public void When_invalid_definition_name_should_throw()
         {
-            var exception = Assert.Throws<InvalidGrammerNameException>(() => new GrammerDefinition(name: "I-am-not a valid name", regex: @"B"));
-            Assert.Equal("I-am-not a valid name", exception.TokenDefinitionName);
+            var exception = Assert.Throws<GrammerDefinitionInvalidNameException>(() => new GrammerDefinition(name: "I-am-not a valid name", regex: @"B"));
+            Assert.Equal("I-am-not a valid name", exception.GrammerDefinitionName);
         }
     }
 }
