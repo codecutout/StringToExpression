@@ -107,17 +107,17 @@ namespace StringParser.Util
                 throw new ArgumentException($"{nameof(segments)} must have at least one item", nameof(segments));
 
             string sourceString = enumerator.Current.SourceString;
-            var maxStart = enumerator.Current.Start;
+            var minStart = enumerator.Current.Start;
             var maxEnd = enumerator.Current.End;
             while(enumerator.MoveNext())
             {
                 if(enumerator.Current.SourceString != sourceString)
                     throw new ArgumentException($"{nameof(segments)} must all have the same source string", nameof(segments));
-                maxStart = Math.Max(enumerator.Current.Start, maxStart);
+                minStart = Math.Min(enumerator.Current.Start, minStart);
                 maxEnd = Math.Max(enumerator.Current.End, maxEnd);
             }
 
-            return new StringSegment(sourceString, maxStart, maxEnd - maxStart);
+            return new StringSegment(sourceString, minStart, maxEnd - minStart);
         }
 
         
