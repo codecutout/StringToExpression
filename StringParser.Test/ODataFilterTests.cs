@@ -5,6 +5,7 @@ using StringParser.Test.Fixtures;
 using StringParser.TokenDefinitions;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Text;
@@ -14,11 +15,11 @@ using Xunit;
 
 namespace StringParser.Test
 {
-    public class ODataFilterTests : IClassFixture<LinqToQuerystringFixture>
+    public class ODataFilterTests : IClassFixture<LinqToQuerystringTestDataFixture>
     {
-        LinqToQuerystringFixture Data;
+        LinqToQuerystringTestDataFixture Data;
 
-        public ODataFilterTests(LinqToQuerystringFixture data)
+        public ODataFilterTests(LinqToQuerystringTestDataFixture data)
         {
             this.Data = data;
         }
@@ -71,10 +72,10 @@ namespace StringParser.Test
         [InlineData("not Code lt 0xCC")]
         [InlineData("Code le 0xCC")]
         [InlineData("not Code le 0xCC")]
-        [InlineData("Guid eq guid'" + LinqToQuerystringFixture.guid1 + "'")]
-        [InlineData("not Guid eq guid'" + LinqToQuerystringFixture.guid1 + "'")]
-        [InlineData("Guid ne guid'" + LinqToQuerystringFixture.guid1 + "'")]
-        [InlineData("not Guid ne guid'" + LinqToQuerystringFixture.guid1 + "'")]
+        [InlineData("Guid eq guid'" + LinqToQuerystringTestDataFixture.guid1 + "'")]
+        [InlineData("not Guid eq guid'" + LinqToQuerystringTestDataFixture.guid1 + "'")]
+        [InlineData("Guid ne guid'" + LinqToQuerystringTestDataFixture.guid1 + "'")]
+        [InlineData("not Guid ne guid'" + LinqToQuerystringTestDataFixture.guid1 + "'")]
         [InlineData("Cost eq 444.444f")]
         [InlineData("Cost gt -444.444f")]
         [InlineData("not Cost eq 444.444f")]
@@ -145,13 +146,13 @@ namespace StringParser.Test
         {
             var linqToQuerystringFiltered = Data.ConcreteCollection.LinqToQuerystring("?$filter=" + query).ToList();
 
-            var filter = new ODataFilterLanguage().Parse<LinqToQuerystringFixture.ConcreteClass, bool>(query);
+            var filter = new ODataFilterLanguage().Parse<LinqToQuerystringTestDataFixture.ConcreteClass>(query);
             var stringParserFiltered = Data.ConcreteCollection.Where(filter).ToList();
 
             Assert.Equal(linqToQuerystringFiltered, stringParserFiltered);
         }
 
-        //[Theory]
+        [Theory]
         [InlineData(@"Name eq 'Apple\\Bob'")]
         [InlineData(@"Name eq 'Apple\bBob'")]
         [InlineData(@"Name eq 'Apple\tBob'")]
@@ -165,13 +166,13 @@ namespace StringParser.Test
 
             var linqToQuerystringFiltered = Data.EdgeCaseCollection.LinqToQuerystring("?$filter=" + query).ToList();
 
-            var filter = new ODataFilterLanguage().Parse<LinqToQuerystringFixture.ConcreteClass, bool>(query);
+            var filter = new ODataFilterLanguage().Parse<LinqToQuerystringTestDataFixture.ConcreteClass>(query);
             var stringParserFiltered = Data.EdgeCaseCollection.Where(filter).ToList();
 
             Assert.Equal(linqToQuerystringFiltered, stringParserFiltered);
         }
 
-        //[Theory]
+        [Theory]
         [InlineData("Age eq 1")]
         [InlineData("1 eq Age")]
         [InlineData("Age ne 1")]
@@ -207,37 +208,70 @@ namespace StringParser.Test
         [InlineData("Value eq 111.111")]
         [InlineData("Cost eq 111.111f")]
         [InlineData("Code eq 0x00")]
-        [InlineData("Guid eq guid'" + LinqToQuerystringFixture.guid0 + "'")]
+        [InlineData("Guid eq guid'" + LinqToQuerystringTestDataFixture.guid0 + "'")]
         public void When_nullable_data_should_return_same_results_as_linqToQuerystring(string query)
         {
-
             var linqToQuerystringFiltered = Data.NullableCollection.LinqToQuerystring("?$filter=" + query).ToList();
 
-            var filter = new ODataFilterLanguage().Parse<LinqToQuerystringFixture.NullableClass, bool>(query);
+            var filter = new ODataFilterLanguage().Parse<LinqToQuerystringTestDataFixture.NullableClass>(query);
             var stringParserFiltered = Data.NullableCollection.Where(filter).ToList();
 
             Assert.Equal(linqToQuerystringFiltered, stringParserFiltered);
         }
 
-        //[Fact]
-        //public void When_single_eq_should_evaluate()
-        //{
-        //    var expression = new ODataFilterLanguage().Parse<bool>("1 eq 1");
-        //    Assert.Equal(true, expression.Compile()());
-        //}
+        [Theory]
+        [InlineData("startswith(Name,'Sat')")]
+        [InlineData("endswith(Name,'day')")]
+        [InlineData("substringof('urn',Name)")]
+        [InlineData("(substringof('Mond',Name)) or (substringof('Tues',Name))")]
+        [InlineData(@"substringof('sat',tolower(Name))")]
+        [InlineData(@"substringof('SAT',toupper(Name))")]
+        [InlineData(@"year(Date) eq 2005")]
+        [InlineData(@"month(Date) eq 6")]
+        [InlineData(@"day(Date) eq 2")]
+        [InlineData(@"hour(Date) eq 10")]
+        [InlineData(@"minute(Date) eq 20")]
+        [InlineData(@"second(Date) eq 50")]
+        public void When_functions_return_same_results_as_linqToQuerystring(string query)
+        {
+            var linqToQuerystringFiltered = Data.FunctionConcreteCollection.LinqToQuerystring("?$filter=" + query).ToList();
 
-        //[Fact]
-        //public void When_datetime_should_evaluate()
-        //{
-        //    assertPredicate(true, "dAteTime'2000-12-12T00:00' eq Datetime'2000-12-12'");
-        //}
+            var filter = new ODataFilterLanguage().Parse<LinqToQuerystringTestDataFixture.ConcreteClass>(query);
+            var stringParserFiltered = Data.FunctionConcreteCollection.Where(filter).ToList();
 
-        //[Fact]
-        //public void When_datetimeoffset_should_evaluate()
-        //{
-        //    assertPredicate(true, "datetimeoffset'2000-12-12T00:00Z' eq datetimeoffset'2000-12-12T00:00:00Z");
+            Assert.Equal(linqToQuerystringFiltered, stringParserFiltered);
+        }
 
-        //}
+        [Fact(Skip = "Performance test")]
+        public void Should_be_faster_than_linqToQuerystring()
+        {
+            var baseDatetime = new DateTime(2003, 01, 01);
+
+            var linqToQueryStringStopwatch = new Stopwatch();
+            linqToQueryStringStopwatch.Start();
+            for(int i = 0; i < 5000; i++)
+            {
+                var date = baseDatetime.AddDays(i).ToString("s");
+                var linqToQuerystringFiltered = Data.ConcreteCollection.LinqToQuerystring($"?$filter=Name eq 'Apple' and (Complete eq true or Date gt datetime'{date}')").ToList();
+            }
+            linqToQueryStringStopwatch.Stop();
+
+
+           
+            var parseStringStopwatch = new Stopwatch();
+            parseStringStopwatch.Start();
+            var language = new ODataFilterLanguage();
+            for (int i = 0; i < 5000; i++)
+            {
+                var date = baseDatetime.AddDays(i).ToString("s");
+                var filter = language.Parse<LinqToQuerystringTestDataFixture.ConcreteClass>($"Name eq 'Apple' and (Complete eq true or Date gt datetime'{date}')");
+                var stringParserFiltered = Data.ConcreteCollection.Where(filter).ToList();
+            }
+            parseStringStopwatch.Stop();
+
+            Assert.True(parseStringStopwatch.ElapsedMilliseconds < linqToQueryStringStopwatch.ElapsedMilliseconds);
+        }
+
 
 
 

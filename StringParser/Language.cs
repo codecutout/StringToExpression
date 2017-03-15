@@ -37,7 +37,7 @@ namespace StringParser
         /// </summary>
         /// <param name="text">input string</param>
         /// <returns>expression that represents the string</returns>
-        protected Expression Parse(string text, params ParameterExpression[] parameters)
+        public Expression Parse(string text, params ParameterExpression[] parameters)
         {
             var tokenStream = this.Tokenizer.Tokenize(text);
             var expression = Parser.Parse(tokenStream, parameters);

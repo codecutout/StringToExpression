@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace StringParser.Test.Fixtures
 {
-    public class LinqToQuerystringFixture
+    public class LinqToQuerystringTestDataFixture
     {
         public readonly IQueryable<ConcreteClass> ConcreteCollection;
         
@@ -16,13 +16,15 @@ namespace StringParser.Test.Fixtures
         
         public readonly IQueryable<NullableClass> NullableCollection;
 
+        public readonly IQueryable<ConcreteClass> FunctionConcreteCollection;
+
         public const string guid0 = "1C1D07FC-0446-4C7B-8DFA-643D42EED070" ;
         public const string guid1 = "270FBCFF-8081-4ADC-B15F-FF9C979BB8AF";
         public const string guid2 = "2F26B3D4-B730-4958-8036-1F7FB9DE20A9";
         public const string guid3 = "2195EAF4-3692-4169-996E-A9B6F1560542";
         public const string guid4 = "3386D6C0-3F3A-4B77-8A6B-4360F75958CB";
 
-        public LinqToQuerystringFixture()
+        public LinqToQuerystringTestDataFixture()
         {
             var guidArray = new[]
             {
@@ -47,6 +49,18 @@ namespace StringParser.Test.Fixtures
                 InstanceBuilders.BuildConcrete("Dogfood", 4, new DateTime(2004, 01, 01), false, 10000000000, 111.111, 111.111f, 0xDD, 0.1m, guidArray[0]),
                 InstanceBuilders.BuildConcrete("Dogfood", 5, new DateTime(2001, 01, 01), true, 20000000000, 222.222, 222.222f, 0xCC, 0.2m, guidArray[1])
             }.AsQueryable();
+
+            FunctionConcreteCollection = new List<ConcreteClass>
+            {
+                InstanceBuilders.BuildConcrete("Saturday", 1, new DateTime(2001, 01, 01, 01, 05, 00), true),
+                InstanceBuilders.BuildConcrete("Satnav", 2, new DateTime(2002, 01, 02, 06, 10, 10), false),
+                InstanceBuilders.BuildConcrete("Saturnalia", 3, new DateTime(2003, 02, 02, 10, 10, 20), true),
+                InstanceBuilders.BuildConcrete("Saturn", 4, new DateTime(2004, 04, 06, 10, 20, 30), true),
+                InstanceBuilders.BuildConcrete("Monday", 5, new DateTime(2005, 06, 21, 13, 20, 40), true),
+                InstanceBuilders.BuildConcrete("Tuesday", 5, new DateTime(2005, 06, 30, 20, 20, 50), true),
+                InstanceBuilders.BuildConcrete("Burns", 5, new DateTime(2005, 10, 31, 23, 35, 50), true)
+            }.AsQueryable();
+
 
             EdgeCaseCollection = new List<ConcreteClass>
             {

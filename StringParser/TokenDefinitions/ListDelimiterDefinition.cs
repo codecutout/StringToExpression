@@ -7,13 +7,12 @@ using System.Threading.Tasks;
 using StringParser.Parser;
 using StringParser.Tokenizer;
 using StringParser.Exceptions;
-using StringParser.Util;
 
 namespace StringParser.TokenDefinitions
 {
-    public class BracketOpenDefinition : GrammerDefinition
+    public class ListDelimiterDefinition : GrammerDefinition
     {
-        public BracketOpenDefinition(string name, string regex)
+        public ListDelimiterDefinition(string name, string regex)
             : base(name, regex)
         {
 
@@ -25,18 +24,8 @@ namespace StringParser.TokenDefinitions
             {
                 //if we ever executed this its because the correspdoning close bracket didnt
                 //pop it from the operators
-                throw new BracketUnmatchedException(token.SourceMap);
+                throw new ListDelimeterNotWithinBrackets(token.SourceMap);
             }));
-        }
-
-        public virtual void ApplyBracketOperands(Stack<Operand> bracketOperands, ParseState state)
-        {
-            if (bracketOperands.Count != 1) {
-                var bracketSpan = StringSegment.Encompass(bracketOperands.Select(x => x.SourceMap));
-                throw new BracketOperandCountException(bracketSpan, 1, bracketOperands.Count);
-            }
-            state.Operands.Push(bracketOperands.Pop());
-
         }
     }
 }

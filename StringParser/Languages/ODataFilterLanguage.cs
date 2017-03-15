@@ -1,4 +1,5 @@
 ﻿using StringParser.TokenDefinitions;
+using StringParser.Util;
 using System;
 using System.Collections.Generic;
 using System.Globalization;
@@ -9,19 +10,42 @@ using System.Threading.Tasks;
 
 namespace StringParser.LanguageDefinitions
 {
-    public class ODataFilterLanguage : Language
+    public class ODataFilterLanguage
     {
-        public ODataFilterLanguage()
-            : base(BuildGrammer()){
+        private readonly Language language;
+
+        public ODataFilterLanguage() {
+            language = new Language(AllDefinitions().ToArray());
         }
 
-        public static GrammerDefinition[] BuildGrammer()
+        public Expression<Func<T, bool>> Parse<T>(string text)
         {
-            BracketOpenDefinition openBracket;
+            var parameters = new[] { Expression.Parameter(typeof(T)) };
+            var body = language.Parse(text, parameters);
+
+            ExpressionConversions.TryBoolean(ref body);
+
+            return Expression.Lambda<Func<T, bool>>(body, parameters);
+        }
+
+        protected virtual IEnumerable<GrammerDefinition> AllDefinitions()
+        {
+            var definitions = new List<GrammerDefinition>();
+            definitions.AddRange(TypeDefinitions());
+            definitions.AddRange(BracketDefinitions());
+            definitions.AddRange(FunctionDefinitions());
+            definitions.AddRange(LogicalOperatorDefinitions());
+            definitions.AddRange(ArithmaticOperatorDefinitions());
+            definitions.AddRange(PropertyDefinitions());
+            definitions.AddRange(WhitespaceDefinitions());
+            return definitions;
+        }
+
+        protected virtual IEnumerable<GrammerDefinition> TypeDefinitions()
+        {
             return new[]
             {
-                //Types
-                 new OperandDefinition(
+                new OperandDefinition(
                     name:"GUID",
                     regex: @"guid'[0-9A-Fa-f]{8}\-[0-9A-Fa-f]{4}\-[0-9A-Fa-f]{4}\-[0-9A-Fa-f]{4}\-[0-9A-Fa-f]{12}'",
                     expressionBuilder: x => Expression.Constant(Guid.Parse(x.Substring("guid".Length).Trim('\'')))),
@@ -29,13 +53,18 @@ namespace StringParser.LanguageDefinitions
                 new OperandDefinition(
                     name:"STRING",
                     regex: @"'(?:\\.|[^'])*'",
-                    expressionBuilder: x => Expression.Constant(x.Trim('\''))),
+                    expressionBuilder: x => Expression.Constant(x.Trim('\'')
+                        .Replace("\\'", "'")
+                        .Replace("\\r", "\r")
+                        .Replace("\\f", "\f")
+                        .Replace("\\n", "\n")
+                        .Replace("\\\\", "\\")
+                        .Replace("\\b", "\b")
+                        .Replace("\\t", "\t"))),
                 new OperandDefinition(
                     name:"BYTE",
                     regex: @"0x[0-9A-Fa-f]{1,2}",
                     expressionBuilder: x => Expression.Constant(byte.Parse(x.Substring("0x".Length), NumberStyles.HexNumber | NumberStyles.AllowHexSpecifier))),
-
-
                 new OperandDefinition(
                     name:"NULL",
                     regex: @"null",
@@ -48,8 +77,6 @@ namespace StringParser.LanguageDefinitions
                     name:"DATETIME",
                     regex: @"[Dd][Aa][Tt][Ee][Tt][Ii][Mm][Ee]'[^']+'",
                     expressionBuilder: x => Expression.Constant(DateTime.Parse(x.Substring("datetime".Length).Trim('\'')))),
-
-
                 new OperandDefinition(
                     name:"DATETIMEOFFSET",
                     regex: @"datetimeoffset'[^']+'",
@@ -67,7 +94,6 @@ namespace StringParser.LanguageDefinitions
                     name:"DECIMAL_EXPLICIT",
                     regex: @"\-?\d+\.?\d+?[m|M]",
                     expressionBuilder: x => Expression.Constant(decimal.Parse(x.TrimEnd('m','M')))),
-
                 new OperandDefinition(
                     name:"DECIMAL",
                     regex: @"\-?\d+\.\d+",
@@ -81,8 +107,13 @@ namespace StringParser.LanguageDefinitions
                     name:"INTEGER",
                     regex: @"\-?\d+",
                     expressionBuilder: x => Expression.Constant(int.Parse(x))),
-              
-                //Logical Operators
+            };
+        }
+
+        protected virtual IEnumerable<GrammerDefinition> LogicalOperatorDefinitions()
+        {
+            return new GrammerDefinition[]
+            {
                 new BinaryOperatorDefinition(
                     name:"EQ",
                     regex: @"eq",
@@ -132,10 +163,17 @@ namespace StringParser.LanguageDefinitions
                     regex: @"not",
                     operatorPrecedence:19,
                     operandPosition: RelativePosition.Right,
-                    expressionBuilder: (arg) => Expression.Not(arg)),
-            
-            
-                //Arithmatic Operators
+                    expressionBuilder: (arg) => {
+                        ExpressionConversions.TryBoolean(ref arg);
+                        return Expression.Not(arg);
+                    })
+            };
+        }
+
+        protected virtual IEnumerable<GrammerDefinition> ArithmaticOperatorDefinitions()
+        {
+            return new[]
+            {
                  new BinaryOperatorDefinition(
                     name:"ADD",
                     regex: @"add",
@@ -161,16 +199,157 @@ namespace StringParser.LanguageDefinitions
                     regex: @"mod",
                     orderOfPrecedence: 5,
                     expressionBuilder: (left,right) => Expression.Modulo(left, right)),
+            };
+        }
 
-                //Brackets
+        protected virtual IEnumerable<GrammerDefinition> BracketDefinitions()
+        {
+            BracketOpenDefinition openBracket;
+            BracketOpenDefinition openFunctionBracket;
+            ListDelimiterDefinition delimeter;
+            return new GrammerDefinition[] {
+                openFunctionBracket = new FunctionBracketOpenDefinition(
+                    name: "OPEN_FUNCTION_BRACKET",
+                    regex: @"(?<=[A-Za-z][A-Za-z0-9]*)\("),
                 openBracket = new BracketOpenDefinition(
-                    name: "OPENBRACKET",
+                    name: "OPEN_BRACKET",
                     regex: @"\("),
+                delimeter = new ListDelimiterDefinition(
+                    name: "COMMA",
+                    regex: ","),
                 new BracketCloseDefinition(
-                    name: "CLOSEBRACKET",
+                    name: "CLOSE_BRACKET",
                     regex: @"\)",
-                    bracketOpenDefinition: openBracket),
+                    bracketOpenDefinitions: new[] { openBracket, openFunctionBracket },
+                    listDelimeterDefinition: delimeter)
+            };
+        }
 
+        protected virtual IEnumerable<GrammerDefinition> FunctionDefinitions()
+        {
+            return new[]
+            {
+                 new FunctionCallDefinition(
+                    name:"FN_STARTSWITH",
+                    regex: @"startswith(?=\()",
+                    orderOfPrecedence:0,
+                    argumentTypes: new[] {typeof(string), typeof(string) },
+                    expressionBuilder: (parameters) => {
+                        return Expression.Call(
+                            instance:parameters[0], 
+                            method:Type<string>.Method(x=>x.StartsWith(null)),
+                            arguments: new [] { parameters[1] });
+                    }),
+                new FunctionCallDefinition(
+                    name:"FN_ENDSWITH",
+                    regex: @"endswith(?=\()",
+                    orderOfPrecedence:0,
+                    argumentTypes: new[] {typeof(string), typeof(string) },
+                    expressionBuilder: (parameters) => {
+                        return Expression.Call(
+                            instance:parameters[0],
+                            method:Type<string>.Method(x=>x.EndsWith(null)),
+                            arguments: new [] { parameters[1] });
+                    }),
+                 new FunctionCallDefinition(
+                    name:"FN_SUBSTRINGOF",
+                    regex: @"substringof(?=\()",
+                    orderOfPrecedence:0,
+                    argumentTypes: new[] {typeof(string), typeof(string) },
+                    expressionBuilder: (parameters) => {
+                        return Expression.Call(
+                            instance:parameters[1],
+                            method:Type<string>.Method(x=>x.Contains(null)),
+                            arguments: new [] { parameters[0] });
+                    }),
+                new FunctionCallDefinition(
+                    name:"FN_TOLOWER",
+                    regex: @"tolower(?=\()",
+                    orderOfPrecedence:0,
+                    argumentTypes: new[] {typeof(string) },
+                    expressionBuilder: (parameters) => {
+                        return Expression.Call(
+                            instance:parameters[0],
+                            method:Type<string>.Method(x=>x.ToLower()));
+                    }),
+                new FunctionCallDefinition(
+                    name:"FN_TOUPPER",
+                    regex: @"toupper(?=\()",
+                    orderOfPrecedence:0,
+                    argumentTypes: new[] {typeof(string) },
+                    expressionBuilder: (parameters) => {
+                        return Expression.Call(
+                            instance:parameters[0],
+                            method:Type<string>.Method(x=>x.ToUpper()));
+                    }),
+
+                 new FunctionCallDefinition(
+                    name:"FN_DAY",
+                    regex: @"day(?=\()",
+                    orderOfPrecedence:0,
+                    argumentTypes: new[] {typeof(DateTime) },
+                    expressionBuilder: (parameters) => {
+                        return Expression.MakeMemberAccess(
+                            parameters[0],
+                            Type<DateTime>.Member(x=>x.Day));
+                    }),
+                 new FunctionCallDefinition(
+                    name:"FN_HOUR",
+                    regex: @"hour(?=\()",
+                    orderOfPrecedence:0,
+                    argumentTypes: new[] {typeof(DateTime) },
+                    expressionBuilder: (parameters) => {
+                        return Expression.MakeMemberAccess(
+                            parameters[0],
+                            Type<DateTime>.Member(x=>x.Hour));
+                    }),
+                  new FunctionCallDefinition(
+                    name:"FN_MINUTE",
+                    regex: @"minute(?=\()",
+                    orderOfPrecedence:0,
+                    argumentTypes: new[] {typeof(DateTime) },
+                    expressionBuilder: (parameters) => {
+                        return Expression.MakeMemberAccess(
+                            parameters[0],
+                            Type<DateTime>.Member(x=>x.Minute));
+                    }),
+                  new FunctionCallDefinition(
+                    name:"FN_MONTH",
+                    regex: @"month(?=\()",
+                    orderOfPrecedence:0,
+                    argumentTypes: new[] {typeof(DateTime) },
+                    expressionBuilder: (parameters) => {
+                        return Expression.MakeMemberAccess(
+                            parameters[0],
+                            Type<DateTime>.Member(x=>x.Month));
+                    }),
+                new FunctionCallDefinition(
+                    name:"FN_YEAR",
+                    regex: @"year(?=\()",
+                    orderOfPrecedence:0,
+                    argumentTypes: new[] {typeof(DateTime) },
+                    expressionBuilder: (parameters) => {
+                        return Expression.MakeMemberAccess(
+                            parameters[0],
+                            Type<DateTime>.Member(x=>x.Year));
+                    }),
+                 new FunctionCallDefinition(
+                    name:"FN_SECOND",
+                    regex: @"second(?=\()",
+                    orderOfPrecedence:0,
+                    argumentTypes: new[] {typeof(DateTime) },
+                    expressionBuilder: (parameters) => {
+                        return Expression.MakeMemberAccess(
+                            parameters[0],
+                            Type<DateTime>.Member(x=>x.Second));
+                    }),
+            };
+        }
+
+        protected virtual IEnumerable<GrammerDefinition> PropertyDefinitions()
+        {
+            return new[]
+            {
                  //Properties
                  new OperandDefinition(
                     name:"PROPERTY",
@@ -178,11 +357,18 @@ namespace StringParser.LanguageDefinitions
                     expressionBuilder: (value, parameters) => {
                     return Expression.MakeMemberAccess(parameters[0], parameters[0].Type.GetProperty(value));
                     }),
+            };
+        }
 
-
-                //Whitespace
+        protected virtual IEnumerable<GrammerDefinition> WhitespaceDefinitions()
+        {
+            return new[]
+            {
                 new GrammerDefinition(name: "WHITESPACE", regex: @"\s+", ignore: true)
             };
         }
+
+
+        
     }
 }

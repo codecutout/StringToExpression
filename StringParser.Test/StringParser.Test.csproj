@@ -67,7 +67,7 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Fixtures\LinqToQuerystringFixture.cs" />
+    <Compile Include="Fixtures\LinqToQuerystringTestDataFixture.cs" />
     <Compile Include="ODataFilterTests.cs" />
     <Compile Include="StringParserTests.cs" />
     <Compile Include="StringTokenizerTests.cs" />

@@ -41,6 +41,10 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Exceptions\BracketUnmatchedException.cs" />
+    <Compile Include="Exceptions\FunctionArgumentCountException.cs" />
+    <Compile Include="Exceptions\BracketOperandCountException.cs" />
+    <Compile Include="Exceptions\ListDelimeterNotWithinBrackets.cs" />
+    <Compile Include="Exceptions\FunctionArgumentTypeException.cs" />
     <Compile Include="Exceptions\GrammerDefinitionDuplicateNameException.cs" />
     <Compile Include="Exceptions\GrammerDefinitionInvalidNameException.cs" />
     <Compile Include="Exceptions\OperandExpectedException.cs" />
@@ -50,6 +54,9 @@
     <Compile Include="Parser\Operator.cs" />
     <Compile Include="Parser\Parser.cs" />
     <Compile Include="Parser\ParseState.cs" />
+    <Compile Include="TokenDefinitions\FunctionCallDefinition.cs" />
+    <Compile Include="TokenDefinitions\FunctionBracketOpenDefinition.cs" />
+    <Compile Include="TokenDefinitions\ListDelimiterDefinition.cs" />
     <Compile Include="TokenDefinitions\UnaryOperatorDefinition.cs" />
     <Compile Include="TokenDefinitions\BracketCloseDefinition.cs" />
     <Compile Include="TokenDefinitions\BracketOpenDefinition.cs" />
@@ -63,8 +70,10 @@
     <Compile Include="Tokenizer\Token.cs" />
     <Compile Include="Tokenizer\Tokenizer.cs" />
     <Compile Include="Util\ExpressionConversions.cs" />
+    <Compile Include="TokenDefinitions\MultiOperandExpression.cs" />
     <Compile Include="Util\StackExtensions.cs" />
     <Compile Include="Util\StringSegment.cs" />
+    <Compile Include="Util\Type.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

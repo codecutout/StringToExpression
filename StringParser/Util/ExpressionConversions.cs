@@ -25,6 +25,41 @@ namespace StringParser.Util
             { typeof(decimal),   new[] { typeof(decimal) }},
         };
 
+        private static bool TryGetCommonType(Type type1, Type type2, out Type commonType)
+        {
+            commonType = null;
+            Type[] possibleType1;
+            if (!ImplicitConverstions.TryGetValue(type1, out possibleType1))
+                return false;
+            Type[] possibleType2;
+            if (!ImplicitConverstions.TryGetValue(type2, out possibleType2))
+                return false;
+
+            commonType = possibleType1.Intersect(possibleType2).FirstOrDefault();
+            if (commonType == null)
+                return false;
+
+            return true;
+        }
+
+        /// <summary>
+        /// Attempt to convert the expression into a boolean
+        /// </summary>
+        /// <param name="exp"></param>
+        /// <returns></returns>
+        public static bool TryBoolean(ref Expression exp)
+        {
+            if (exp.Type == typeof(bool))
+                return true;
+
+            var left = exp;
+            var right = (Expression)Expression.Constant(true);
+            if (!ExpressionConversions.TryImplicitlyConvert(ref left, ref right))
+                return false;
+            exp = Expression.Equal(left, right);
+            return true;
+        }
+
         /// <summary>
         /// Attempts to perform the implicit conversion so both expressions are the same type
         /// </summary>
@@ -33,28 +68,71 @@ namespace StringParser.Util
         /// <returns></returns>
         public static bool TryImplicitlyConvert(ref Expression exp1, ref Expression exp2)
         {
+            var type1 = exp1.Type;
+            var type2 = exp2.Type;
+
             //same type, nothing to do here
-            if (exp1.Type == exp2.Type)
+            if (type1 == type2)
                 return true;
 
-            Type[] possibleType1;
-            if (!ImplicitConverstions.TryGetValue(exp1.Type, out possibleType1))
-                return false;
-            Type[] possibleType2;
-            if (!ImplicitConverstions.TryGetValue(exp2.Type, out possibleType2))
-                return false;
+            var nullableType1 = Nullable.GetUnderlyingType(exp1.Type);
+            var nullableType2 = Nullable.GetUnderlyingType(exp2.Type);
+            var nullable = nullableType1 != null || nullableType2 != null;
 
-            var typeToCastTo = possibleType1.Intersect(possibleType2).FirstOrDefault();
-            if (typeToCastTo == null)
-                return false;
-           
+            type1 = nullableType1 ?? type1;
+            type2 = nullableType2 ?? type2;
 
-            if (exp1.Type != typeToCastTo)
-                exp1 = Expression.Convert(exp1, typeToCastTo);
-            if (exp2.Type != typeToCastTo)
-                exp2 = Expression.Convert(exp2, typeToCastTo);
+            Type commonType;
+            if (nullable && type1 == type2)
+            {
+                //if the underlying type is the same, the common type is
+                //just he nullable version
+                commonType = typeof(Nullable<>).MakeGenericType(type1);
+            }
+            else if (IsNullConstant(exp1))
+            {
+                //one of our expressions is null, so convert the other side to a nullable
+                commonType = typeof(Nullable<>).MakeGenericType(type2);
+            }
+            else if (IsNullConstant(exp2))
+            {
+                //the other side of the expression is null so convert the first side to a nullable
+                commonType = typeof(Nullable<>).MakeGenericType(type1);
+            }
+            else if (TryGetCommonType(type1, type2, out commonType))
+            {
+                //we have a common type, if we had a nullable type to begin
+                //with convert our common type to a nullable as well
+                if (nullable)
+                    commonType = typeof(Nullable<>).MakeGenericType(commonType);
+            }
+            else
+            {
+                return false;
+            }
+
+                      
+            if (exp1.Type != commonType)
+                exp1 = Expression.Convert(exp1, commonType);
+            if (exp2.Type != commonType)
+                exp2 = Expression.Convert(exp2, commonType);
             return true;
 
         }
+
+        /// <summary>
+        /// Determines if expression is a null constant
+        /// </summary>
+        /// <param name="exp"></param>
+        /// <returns></returns>
+        public static bool IsNullConstant(Expression exp)
+        {
+            var constantExpression = exp as ConstantExpression;
+            if (constantExpression == null)
+                return false;
+            return constantExpression.Value == null;
+        }
+
+      
     }
 }

@@ -53,14 +53,19 @@ namespace StringParser.TokenDefinitions
 
         public override void Apply(Token token, ParseState state)
         {
-            //Apply previous operators if they have a high precedence
-            if(state.Operators.Count > 0 && this.OrderOfPrecedence != null)
+            //Apply previous operators if they have a high precedence and they share an operand
+            var anyLeftOperators = this.ParamaterPositions.Any(x => x == RelativePosition.Left);
+            while (state.Operators.Count > 0 && this.OrderOfPrecedence != null && anyLeftOperators)
             {
-                var nextOperator = state.Operators.Peek().Definition as OperatorDefinition;
-                var prevOperatorPrecedence = nextOperator?.OrderOfPrecedence;
-                if(prevOperatorPrecedence <= this.OrderOfPrecedence)
+                var prevOperator = state.Operators.Peek().Definition as OperatorDefinition;
+                var prevOperatorPrecedence = prevOperator?.OrderOfPrecedence;
+                if(prevOperatorPrecedence <= this.OrderOfPrecedence && prevOperator.ParamaterPositions.Any(x=> x == RelativePosition.Right))
                 {
                     state.Operators.Pop().Execute();
+                }
+                else
+                {
+                    break;
                 }
             }
             
