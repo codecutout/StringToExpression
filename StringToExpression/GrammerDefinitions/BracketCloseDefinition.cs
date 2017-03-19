@@ -13,17 +13,17 @@ namespace StringToExpression.GrammerDefinitions
 {
     public class BracketCloseDefinition : GrammerDefinition
     {
-        public readonly BracketOpenDefinition[] BracketOpenDefinitions;
+        public readonly IReadOnlyCollection<BracketOpenDefinition> BracketOpenDefinitions;
         public readonly GrammerDefinition ListDelimeterDefinition;
 
         public BracketCloseDefinition(string name, string regex,
-            BracketOpenDefinition[] bracketOpenDefinitions,
+            IEnumerable<BracketOpenDefinition> bracketOpenDefinitions,
             GrammerDefinition listDelimeterDefinition = null)
             : base(name, regex)
         {
             if (bracketOpenDefinitions == null)
                 throw new ArgumentNullException(nameof(bracketOpenDefinitions));
-            this.BracketOpenDefinitions = bracketOpenDefinitions;
+            this.BracketOpenDefinitions = bracketOpenDefinitions.ToList().AsReadOnly();
             this.ListDelimeterDefinition = listDelimeterDefinition;
         }
 
@@ -46,7 +46,7 @@ namespace StringToExpression.GrammerDefinitions
                     //we have hit the opening bracket we are done
                     bracketOperands.Push(state.Operands.Pop());
 
-                    ((BracketOpenDefinition)op.Definition).ApplyBracketOperands(bracketOperands, state);
+                    ((BracketOpenDefinition)op.Definition).ApplyBracketOperands(op, bracketOperands, state);
                     return;
                 }
                 else if (ListDelimeterDefinition != null && op.Definition == ListDelimeterDefinition)

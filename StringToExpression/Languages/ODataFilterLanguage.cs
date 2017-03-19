@@ -30,10 +30,11 @@ namespace StringToExpression.LanguageDefinitions
 
         protected virtual IEnumerable<GrammerDefinition> AllDefinitions()
         {
+            IEnumerable<FunctionCallDefinition> functions;
             var definitions = new List<GrammerDefinition>();
             definitions.AddRange(TypeDefinitions());
-            definitions.AddRange(BracketDefinitions());
-            definitions.AddRange(FunctionDefinitions());
+            definitions.AddRange(functions = FunctionDefinitions());
+            definitions.AddRange(BracketDefinitions(functions));
             definitions.AddRange(LogicalOperatorDefinitions());
             definitions.AddRange(ArithmaticOperatorDefinitions());
             definitions.AddRange(PropertyDefinitions());
@@ -202,15 +203,12 @@ namespace StringToExpression.LanguageDefinitions
             };
         }
 
-        protected virtual IEnumerable<GrammerDefinition> BracketDefinitions()
+        protected virtual IEnumerable<GrammerDefinition> BracketDefinitions(IEnumerable<FunctionCallDefinition> functionCalls)
         {
             BracketOpenDefinition openBracket;
             BracketOpenDefinition openFunctionBracket;
             ListDelimiterDefinition delimeter;
             return new GrammerDefinition[] {
-                openFunctionBracket = new FunctionBracketOpenDefinition(
-                    name: "OPEN_FUNCTION_BRACKET",
-                    regex: @"(?<=[A-Za-z][A-Za-z0-9]*)\("),
                 openBracket = new BracketOpenDefinition(
                     name: "OPEN_BRACKET",
                     regex: @"\("),
@@ -220,19 +218,18 @@ namespace StringToExpression.LanguageDefinitions
                 new BracketCloseDefinition(
                     name: "CLOSE_BRACKET",
                     regex: @"\)",
-                    bracketOpenDefinitions: new[] { openBracket, openFunctionBracket },
+                    bracketOpenDefinitions: new[] { openBracket }.Concat(functionCalls),
                     listDelimeterDefinition: delimeter)
             };
         }
 
-        protected virtual IEnumerable<GrammerDefinition> FunctionDefinitions()
+        protected virtual IEnumerable<FunctionCallDefinition> FunctionDefinitions()
         {
             return new[]
             {
                  new FunctionCallDefinition(
                     name:"FN_STARTSWITH",
-                    regex: @"startswith(?=\()",
-                    orderOfPrecedence:0,
+                    regex: @"startswith\(",
                     argumentTypes: new[] {typeof(string), typeof(string) },
                     expressionBuilder: (parameters) => {
                         return Expression.Call(
@@ -242,8 +239,7 @@ namespace StringToExpression.LanguageDefinitions
                     }),
                 new FunctionCallDefinition(
                     name:"FN_ENDSWITH",
-                    regex: @"endswith(?=\()",
-                    orderOfPrecedence:0,
+                    regex: @"endswith\(",
                     argumentTypes: new[] {typeof(string), typeof(string) },
                     expressionBuilder: (parameters) => {
                         return Expression.Call(
@@ -253,8 +249,7 @@ namespace StringToExpression.LanguageDefinitions
                     }),
                  new FunctionCallDefinition(
                     name:"FN_SUBSTRINGOF",
-                    regex: @"substringof(?=\()",
-                    orderOfPrecedence:0,
+                    regex: @"substringof\(",
                     argumentTypes: new[] {typeof(string), typeof(string) },
                     expressionBuilder: (parameters) => {
                         return Expression.Call(
@@ -264,8 +259,7 @@ namespace StringToExpression.LanguageDefinitions
                     }),
                 new FunctionCallDefinition(
                     name:"FN_TOLOWER",
-                    regex: @"tolower(?=\()",
-                    orderOfPrecedence:0,
+                    regex: @"tolower\(",
                     argumentTypes: new[] {typeof(string) },
                     expressionBuilder: (parameters) => {
                         return Expression.Call(
@@ -274,8 +268,7 @@ namespace StringToExpression.LanguageDefinitions
                     }),
                 new FunctionCallDefinition(
                     name:"FN_TOUPPER",
-                    regex: @"toupper(?=\()",
-                    orderOfPrecedence:0,
+                    regex: @"toupper\(",
                     argumentTypes: new[] {typeof(string) },
                     expressionBuilder: (parameters) => {
                         return Expression.Call(
@@ -285,8 +278,7 @@ namespace StringToExpression.LanguageDefinitions
 
                  new FunctionCallDefinition(
                     name:"FN_DAY",
-                    regex: @"day(?=\()",
-                    orderOfPrecedence:0,
+                    regex: @"day\(",
                     argumentTypes: new[] {typeof(DateTime) },
                     expressionBuilder: (parameters) => {
                         return Expression.MakeMemberAccess(
@@ -295,8 +287,7 @@ namespace StringToExpression.LanguageDefinitions
                     }),
                  new FunctionCallDefinition(
                     name:"FN_HOUR",
-                    regex: @"hour(?=\()",
-                    orderOfPrecedence:0,
+                    regex: @"hour\(",
                     argumentTypes: new[] {typeof(DateTime) },
                     expressionBuilder: (parameters) => {
                         return Expression.MakeMemberAccess(
@@ -305,8 +296,7 @@ namespace StringToExpression.LanguageDefinitions
                     }),
                   new FunctionCallDefinition(
                     name:"FN_MINUTE",
-                    regex: @"minute(?=\()",
-                    orderOfPrecedence:0,
+                    regex: @"minute\(",
                     argumentTypes: new[] {typeof(DateTime) },
                     expressionBuilder: (parameters) => {
                         return Expression.MakeMemberAccess(
@@ -315,8 +305,7 @@ namespace StringToExpression.LanguageDefinitions
                     }),
                   new FunctionCallDefinition(
                     name:"FN_MONTH",
-                    regex: @"month(?=\()",
-                    orderOfPrecedence:0,
+                    regex: @"month\(",
                     argumentTypes: new[] {typeof(DateTime) },
                     expressionBuilder: (parameters) => {
                         return Expression.MakeMemberAccess(
@@ -325,8 +314,7 @@ namespace StringToExpression.LanguageDefinitions
                     }),
                 new FunctionCallDefinition(
                     name:"FN_YEAR",
-                    regex: @"year(?=\()",
-                    orderOfPrecedence:0,
+                    regex: @"year\(",
                     argumentTypes: new[] {typeof(DateTime) },
                     expressionBuilder: (parameters) => {
                         return Expression.MakeMemberAccess(
@@ -335,8 +323,7 @@ namespace StringToExpression.LanguageDefinitions
                     }),
                  new FunctionCallDefinition(
                     name:"FN_SECOND",
-                    regex: @"second(?=\()",
-                    orderOfPrecedence:0,
+                    regex: @"second\(",
                     argumentTypes: new[] {typeof(DateTime) },
                     expressionBuilder: (parameters) => {
                         return Expression.MakeMemberAccess(

@@ -29,7 +29,7 @@ namespace StringToExpression.GrammerDefinitions
             }));
         }
 
-        public virtual void ApplyBracketOperands(Stack<Operand> bracketOperands, ParseState state)
+        public virtual void ApplyBracketOperands(Operator bracketOpen, Stack<Operand> bracketOperands, ParseState state)
         {
             if (bracketOperands.Count != 1) {
                 var bracketSpan = StringSegment.Encompass(bracketOperands.Select(x => x.SourceMap));

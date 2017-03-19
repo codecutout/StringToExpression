@@ -120,6 +120,7 @@ namespace StringToExpression.Util
             return new StringSegment(sourceString, minStart, maxEnd - minStart);
         }
 
+
         
         public override string ToString()
         {
