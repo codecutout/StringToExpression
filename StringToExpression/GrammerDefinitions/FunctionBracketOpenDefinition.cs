@@ -9,7 +9,7 @@ using StringToExpression.Tokenizer;
 using StringToExpression.Exceptions;
 using StringToExpression.Util;
 
-namespace StringToExpression.TokenDefinitions
+namespace StringToExpression.GrammerDefinitions
 {
     public class FunctionBracketOpenDefinition : BracketOpenDefinition
     {

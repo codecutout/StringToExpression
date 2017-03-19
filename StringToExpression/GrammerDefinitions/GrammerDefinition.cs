@@ -3,8 +3,11 @@ using StringToExpression.Parser;
 using StringToExpression.Tokenizer;
 using System.Text.RegularExpressions;
 
-namespace StringToExpression.TokenDefinitions
+namespace StringToExpression.GrammerDefinitions
 {
+    /// <summary>
+    /// Defines how a single token is behaves wihtin the system
+    /// </summary>
     public class GrammerDefinition
     {
         private static Regex NameValidation = new Regex("^[a-zA-Z0-9_]+$");

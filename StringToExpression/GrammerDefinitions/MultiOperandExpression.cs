@@ -6,7 +6,7 @@ using System.Linq.Expressions;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace StringToExpression.TokenDefinitions
+namespace StringToExpression.GrammerDefinitions
 {
     /// <summary>
     /// A custom expression that holds a list of operands. Used primary to pass arguments to functions

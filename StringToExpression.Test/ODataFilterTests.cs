@@ -2,7 +2,7 @@
 using StringToExpression.Exceptions;
 using StringToExpression.LanguageDefinitions;
 using StringToExpression.Test.Fixtures;
-using StringToExpression.TokenDefinitions;
+using StringToExpression.GrammerDefinitions;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;

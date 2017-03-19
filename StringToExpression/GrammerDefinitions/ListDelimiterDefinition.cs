@@ -8,7 +8,7 @@ using StringToExpression.Parser;
 using StringToExpression.Tokenizer;
 using StringToExpression.Exceptions;
 
-namespace StringToExpression.TokenDefinitions
+namespace StringToExpression.GrammerDefinitions
 {
     public class ListDelimiterDefinition : GrammerDefinition
     {

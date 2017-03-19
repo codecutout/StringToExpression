@@ -10,11 +10,11 @@ using System.Collections;
 using StringToExpression.Util;
 using StringToExpression.Exceptions;
 
-namespace StringToExpression.TokenDefinitions
+namespace StringToExpression.GrammerDefinitions
 {
     public class UnaryOperatorDefinition : OperatorDefinition
     {
-        public UnaryOperatorDefinition(string name,
+       public UnaryOperatorDefinition(string name,
            string regex,
            int operatorPrecedence,
            RelativePosition operandPosition,

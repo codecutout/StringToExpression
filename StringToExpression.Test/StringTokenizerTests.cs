@@ -1,5 +1,5 @@
 ﻿using StringToExpression.Exceptions;
-using StringToExpression.TokenDefinitions;
+using StringToExpression.GrammerDefinitions;
 using System;
 using System.Collections.Generic;
 using System.Linq;

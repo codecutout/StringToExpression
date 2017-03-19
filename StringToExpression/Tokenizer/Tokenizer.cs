@@ -1,5 +1,5 @@
 ﻿using StringToExpression.Exceptions;
-using StringToExpression.TokenDefinitions;
+using StringToExpression.GrammerDefinitions;
 using StringToExpression.Util;
 using System;
 using System.Collections.Generic;
@@ -8,12 +8,15 @@ using System.Text.RegularExpressions;
 
 namespace StringToExpression.Tokenizer
 {
+    /// <summary>
+    /// Converts a string into a stream of tokens
+    /// </summary>
     public class Tokenizer
     {
         /// <summary>
         /// Configuration of the tokens
         /// </summary>
-        public readonly IReadOnlyList<GrammerDefinition> TokenDefinitions;
+        public readonly IReadOnlyList<GrammerDefinition> GrammerDefinitions;
 
         /// <summary>
         /// Regex to identify tokens
@@ -27,9 +30,9 @@ namespace StringToExpression.Tokenizer
             if (duplicateKey != null)
                 throw new GrammerDefinitionDuplicateNameException(duplicateKey);
 
-            TokenDefinitions = grammerDefinitions.ToList().AsReadOnly();
+            GrammerDefinitions = grammerDefinitions.ToList().AsReadOnly();
 
-            var pattern = string.Join("|", TokenDefinitions.Select(x => $"(?<{x.Name}>{x.Regex})"));
+            var pattern = string.Join("|", GrammerDefinitions.Select(x => $"(?<{x.Name}>{x.Regex})"));
             this.TokenRegex = new Regex(pattern);
         }
 
@@ -49,7 +52,7 @@ namespace StringToExpression.Tokenizer
                     throw new TokenUnexpectedException(new StringSegment(text, expectedIndex, match.Index - expectedIndex));
                 expectedIndex = match.Index + match.Length;
 
-                var matchedTokenDefinition = TokenDefinitions.FirstOrDefault(x => match.Groups[x.Name].Success);
+                var matchedTokenDefinition = GrammerDefinitions.FirstOrDefault(x => match.Groups[x.Name].Success);
                 if (matchedTokenDefinition.Ignore)
                     continue;
 

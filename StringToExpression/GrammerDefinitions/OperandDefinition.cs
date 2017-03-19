@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 using StringToExpression.Parser;
 using StringToExpression.Tokenizer;
 
-namespace StringToExpression.TokenDefinitions
+namespace StringToExpression.GrammerDefinitions
 {
     public class OperandDefinition : GrammerDefinition
     {

@@ -1,4 +1,4 @@
-﻿using StringToExpression.TokenDefinitions;
+﻿using StringToExpression.GrammerDefinitions;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -14,7 +14,7 @@ namespace StringToExpression
         /// <summary>
         /// Configuration used to create the language
         /// </summary>
-        public IReadOnlyList<GrammerDefinition> TokenDefinitions => Tokenizer.TokenDefinitions;
+        public IReadOnlyList<GrammerDefinition> TokenDefinitions => Tokenizer.GrammerDefinitions;
 
         /// <summary>
         /// Tokenizer to generate tokens

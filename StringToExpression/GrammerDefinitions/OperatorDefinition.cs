@@ -10,7 +10,7 @@ using System.Collections;
 using StringToExpression.Util;
 using StringToExpression.Exceptions;
 
-namespace StringToExpression.TokenDefinitions
+namespace StringToExpression.GrammerDefinitions
 {
     public enum RelativePosition
     {
