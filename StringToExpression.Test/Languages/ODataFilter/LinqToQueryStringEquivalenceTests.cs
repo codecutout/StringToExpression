@@ -15,11 +15,11 @@ using Xunit;
 
 namespace StringToExpression.Test
 {
-    public class ODataFilterTests : IClassFixture<LinqToQuerystringTestDataFixture>
+    public class LinqToQueryStringEquivalenceTests : IClassFixture<LinqToQuerystringTestDataFixture>
     {
         LinqToQuerystringTestDataFixture Data;
 
-        public ODataFilterTests(LinqToQuerystringTestDataFixture data)
+        public LinqToQueryStringEquivalenceTests(LinqToQuerystringTestDataFixture data)
         {
             this.Data = data;
         }

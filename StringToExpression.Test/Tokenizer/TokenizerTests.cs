@@ -10,7 +10,7 @@ using Xunit;
 
 namespace StringToExpression.Test
 {
-    public class StringTokenizerTests
+    public class TokenizerTests
     {
         [Fact]
         public void Should_tokenize_with_definition_and_value()

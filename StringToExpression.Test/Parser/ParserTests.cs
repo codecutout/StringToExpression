@@ -1,5 +1,6 @@
 ﻿using StringToExpression.Exceptions;
 using StringToExpression.GrammerDefinitions;
+using StringToExpression.Util;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -141,7 +142,7 @@ namespace StringToExpression.Test
         [Fact]
         public void Should_run_single_param_functions()
         {
-            BracketOpenDefinition openBracket;
+            BracketOpenDefinition openBracket, sinFn;
             var language = new Language(
                 new OperatorDefinition(
                     name: "PLUS",
@@ -149,11 +150,9 @@ namespace StringToExpression.Test
                     orderOfPrecedence: 10,
                     paramaterPositions: new[] { RelativePosition.Left, RelativePosition.Right },
                     expressionBuilder: args => Expression.Add(args[0], args[1])),
-                  new OperatorDefinition(
+                 sinFn = new FunctionCallDefinition(
                     name: "SIN",
-                    regex: @"sin",
-                    orderOfPrecedence: 1,
-                    paramaterPositions: new[] { RelativePosition.Right },
+                    regex: @"sin\(",
                     expressionBuilder: args => Expression.Call(typeof(Math).GetMethod("Sin"), args[0])),
                 openBracket = new BracketOpenDefinition(
                     name: "OPENBRACKET",
@@ -161,7 +160,7 @@ namespace StringToExpression.Test
                 new BracketCloseDefinition(
                     name: "CLOSEBRACKET",
                     regex: @"\)",
-                    bracketOpenDefinition: openBracket),
+                    bracketOpenDefinitions: new[] { openBracket, sinFn }),
                 new OperandDefinition(
                     name: "NUMBER",
                     regex: @"\d*\.?\d+?",
@@ -173,10 +172,11 @@ namespace StringToExpression.Test
             Assert.Equal(3.14, expression.Compile()(), 2);
         }
 
-        //[Fact]
+        [Fact]
         public void Should_run_two_param_functions()
         {
-            BracketOpenDefinition openBracket;
+            BracketOpenDefinition openBracket, logFn;
+            GrammerDefinition listDelimeter;
             var language = new Language(
                 new OperatorDefinition(
                     name: "PLUS",
@@ -184,19 +184,21 @@ namespace StringToExpression.Test
                     orderOfPrecedence: 1,
                     paramaterPositions: new[] { RelativePosition.Left, RelativePosition.Right },
                     expressionBuilder: args => Expression.Add(args[0], args[1])),
-                  new OperatorDefinition(
+                 logFn = new FunctionCallDefinition(
                     name: "LOG",
-                    regex: @"[Ll]og",
-                    orderOfPrecedence: 10,
-                    paramaterPositions: new[] { RelativePosition.Right, RelativePosition.Right },
-                    expressionBuilder: args => Expression.Call(typeof(Math).GetMethod("Log"), args)),
+                    regex: @"[Ll]og\(",
+                    expressionBuilder: args => Expression.Call(Type<int>.Method(x=>Math.Log(0,0)), args)),
                 openBracket = new BracketOpenDefinition(
                     name: "OPENBRACKET",
                     regex: @"\("),
+                listDelimeter = new ListDelimiterDefinition(
+                    name: "COMMA",
+                    regex: @"\,"),
                 new BracketCloseDefinition(
                     name: "CLOSEBRACKET",
                     regex: @"\)",
-                    bracketOpenDefinition: openBracket),
+                    bracketOpenDefinitions: new[] { openBracket, logFn },
+                    listDelimeterDefinition: listDelimeter),
                 new OperandDefinition(
                     name: "NUMBER",
                     regex: @"\d*\.?\d+?",

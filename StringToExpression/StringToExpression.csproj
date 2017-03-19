@@ -49,6 +49,7 @@
     <Compile Include="Exceptions\GrammerDefinitionInvalidNameException.cs" />
     <Compile Include="Exceptions\OperandExpectedException.cs" />
     <Compile Include="Exceptions\OperandUnexpectedException.cs" />
+    <Compile Include="Exceptions\ParseException.cs" />
     <Compile Include="Languages\ODataFilterLanguage.cs" />
     <Compile Include="Parser\Operand.cs" />
     <Compile Include="Parser\Operator.cs" />
