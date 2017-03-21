@@ -80,7 +80,7 @@ namespace StringToExpression.Util
                 throw new ArgumentNullException(nameof(segment));
             if (this.SourceString != segment.SourceString)
                 throw new ArgumentException($"{nameof(segment)} must have the same source string", nameof(segment));
-            return segment.Start <= End;
+            return segment.Start >= End;
         }
 
         /// <summary>
@@ -120,6 +120,25 @@ namespace StringToExpression.Util
             return new StringSegment(sourceString, minStart, maxEnd - minStart);
         }
 
+        public static StringSegment Encompass(params StringSegment[] segments)
+        {
+            return Encompass((IEnumerable<StringSegment>)segments);
+        }
+
+        public bool IsBetween(StringSegment segment1, StringSegment segment2)
+        {
+            return segment1.End <= this.Start && segment2.Start >= this.End;
+        }
+
+        public static StringSegment Between(StringSegment segment1, StringSegment segment2)
+        {
+            if(segment1.SourceString != segment2.SourceString)
+                throw new ArgumentException($"{nameof(segment1)} and {nameof(segment2)} must the same source string");
+            return new StringSegment(
+                        segment1.SourceString,
+                        segment1.End,
+                        segment2.Start - segment1.End);
+        }
 
         
         public override string ToString()

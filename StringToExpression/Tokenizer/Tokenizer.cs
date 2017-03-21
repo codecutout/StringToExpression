@@ -49,7 +49,7 @@ namespace StringToExpression.Tokenizer
             foreach (var match in matches)
             {
                 if (match.Index > expectedIndex)
-                    throw new TokenUnexpectedException(new StringSegment(text, expectedIndex, match.Index - expectedIndex));
+                    throw new GrammerUnexpectedException(new StringSegment(text, expectedIndex, match.Index - expectedIndex));
                 expectedIndex = match.Index + match.Length;
 
                 var matchedTokenDefinition = GrammerDefinitions.FirstOrDefault(x => match.Groups[x.Name].Success);

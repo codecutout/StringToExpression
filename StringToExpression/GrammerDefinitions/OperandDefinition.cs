@@ -6,6 +6,7 @@ using System.Text;
 using System.Threading.Tasks;
 using StringToExpression.Parser;
 using StringToExpression.Tokenizer;
+using StringToExpression.Exceptions;
 
 namespace StringToExpression.GrammerDefinitions
 {
@@ -29,7 +30,16 @@ namespace StringToExpression.GrammerDefinitions
 
         public override void Apply(Token token, ParseState state)
         {
-            var expression = ExpressionBuilder(token.Value, state.Parameters.ToArray());
+            Expression expression;
+            try
+            {
+                expression = ExpressionBuilder(token.Value, state.Parameters.ToArray());
+            }
+            catch (Exception ex)
+            {
+                throw new OperationInvalidException(token.SourceMap, ex);
+            }
+            
             state.Operands.Push(new Operand(expression, token.SourceMap));
         }
     }

@@ -45,8 +45,8 @@ namespace StringToExpression.Test
                 new GrammerDefinition(name:"NUMBER", regex: @"\d*\.?\d+?"),
                 new GrammerDefinition(name: "WHITESPACE", regex: @"\s+", ignore:true)
                 );
-            var exception = Assert.Throws<TokenUnexpectedException>(() => language.Tokenizer.Tokenize("1 + 2 * 3 - 5").ToList());
-            Assert.Equal("1 + 2 [*] 3 - 5", exception.UnexpectedTokenStringSegment.Highlight());
+            var exception = Assert.Throws<GrammerUnexpectedException>(() => language.Tokenizer.Tokenize("1 + 2 * 3 - 5").ToList());
+            Assert.Equal("1 + 2 [*] 3 - 5", exception.UnexpectedGrammerStringSegment.Highlight());
         }
 
         [Fact]

@@ -6,7 +6,7 @@ namespace StringToExpression.Exceptions
     /// <summary>
     /// Exception when a function argument is not the expected type
     /// </summary>
-    public class FunctionArgumentTypeException : Exception
+    public class FunctionArgumentTypeException : ParseException
     {
         /// <summary>
         /// StringSegment that contains the argument of incorrect type
@@ -25,7 +25,7 @@ namespace StringToExpression.Exceptions
 
 
         public FunctionArgumentTypeException(StringSegment argumentStringSegment, Type expectedType, Type actualType) 
-            : base($"Argument '{argumentStringSegment.Value}' type expected {expectedType} but was {actualType}")
+            : base(argumentStringSegment, $"Argument '{argumentStringSegment.Value}' type expected {expectedType} but was {actualType}")
         {
             ArgumentStringSegment = argumentStringSegment;
             ExpectedType = expectedType;

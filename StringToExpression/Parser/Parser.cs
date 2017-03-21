@@ -1,4 +1,5 @@
-﻿using StringToExpression.Tokenizer;
+﻿using StringToExpression.Exceptions;
+using StringToExpression.Tokenizer;
 using StringToExpression.Util;
 using System;
 using System.Collections.Generic;
@@ -34,8 +35,14 @@ namespace StringToExpression.Parser
                 op.Execute();
             }
 
-            if (state.Operands.Count != 1)
-                throw new Exception("Operators have not successfully reduced the expression");
+            //if we dont have a single operand, then we probably had too many operands
+            //and not enough operators in our input string
+            if (state.Operands.Count == 0)
+                throw new OperandExpectedException(new StringSegment("",0,0));
+            if (state.Operands.Count > 1)
+                throw new OperandUnexpectedException(state.Operands.Peek().SourceMap);
+            
+               
 
             return state.Operands.Peek().Expression;
         }

@@ -6,7 +6,7 @@ namespace StringToExpression.Exceptions
     /// <summary>
     /// Exception when an operand was expected but not found
     /// </summary>
-    public class OperandExpectedException : Exception
+    public class OperandExpectedException : ParseException
     {
         /// <summary>
         /// StringSegment that contains the operator
@@ -18,10 +18,16 @@ namespace StringToExpression.Exceptions
         /// </summary>
         public readonly StringSegment ExpectedOperandStringSegment;
 
-     
+
+        public OperandExpectedException(StringSegment expectedOperandStringSegment)
+            : base(expectedOperandStringSegment, $"Expected operands to be found")
+        {
+            OperatorStringSegment = null;
+            ExpectedOperandStringSegment = expectedOperandStringSegment;
+        }
 
         public OperandExpectedException(StringSegment operatorStringSegment, StringSegment expectedOperandStringSegment) 
-            : base($"Expected operands to be found for '{operatorStringSegment.Value}'")
+            : base(expectedOperandStringSegment, $"Expected operands to be found for '{operatorStringSegment.Value}'")
         {
             OperatorStringSegment = operatorStringSegment;
             ExpectedOperandStringSegment = expectedOperandStringSegment;

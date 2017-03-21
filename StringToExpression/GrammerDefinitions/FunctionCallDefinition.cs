@@ -33,9 +33,10 @@ namespace StringToExpression.GrammerDefinitions
         {
         }
 
-        public override void ApplyBracketOperands(Operator bracketOpen, Stack<Operand> bracketOperands, ParseState state)
+        public override void ApplyBracketOperands(Operator bracketOpen, Stack<Operand> bracketOperands, Operator bracketClose, ParseState state)
         {
             var operandSource = StringSegment.Encompass(bracketOperands.Select(x => x.SourceMap));
+            var functionArguments = bracketOperands.Select(x => x.Expression);
             //if we have been given specific argument types validate them
             if (ArgumentTypes != null)
             {
@@ -46,23 +47,34 @@ namespace StringToExpression.GrammerDefinitions
                         expectedArgumentCount,
                         bracketOperands.Count);
 
-                var invalidType = bracketOperands
-                    .Zip(ArgumentTypes, (o, t) => new { Operand = o, Type = t })
-                    .Where(x => !x.Type.IsAssignableFrom(x.Operand.Expression.Type))
-                    .FirstOrDefault();
+                functionArguments = bracketOperands.Zip(ArgumentTypes, (o, t) => {
+                    try
+                    {
+                        return ExpressionConversions.Convert(o.Expression, t);
+                    }
+                    catch(InvalidOperationException ex)
+                    {
+                        //if we cant convert to the argument type then something is wrong with the argument
+                        //so we will throw it up
+                        throw new FunctionArgumentTypeException(o.SourceMap, t, o.Expression.Type);
+                    }
+                });
 
-                if (invalidType != null)
-                {
-                    throw new FunctionArgumentTypeException(
-                        invalidType.Operand.SourceMap,
-                        invalidType.Operand.Expression.Type,
-                        invalidType.Type);
-                }
             }
 
-            var output = ExpressionBuilder(bracketOperands.Select(x => x.Expression).ToArray());
+            var functionSourceMap = StringSegment.Encompass(bracketOpen.SourceMap, operandSource);
+            var functionArgumentsArray = functionArguments.ToArray();
+            Expression output;
+            try
+            {
+                output = ExpressionBuilder(functionArgumentsArray);
+            }
+            catch(Exception ex)
+            {
+                throw new OperationInvalidException(functionSourceMap, ex);
+            }
             if(output != null)
-                state.Operands.Push(new Operand(output, StringSegment.Encompass(new[] { bracketOpen.SourceMap, operandSource })));
+                state.Operands.Push(new Operand(output, functionSourceMap));
         }
     }
 }

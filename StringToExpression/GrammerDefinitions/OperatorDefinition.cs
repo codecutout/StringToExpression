@@ -110,11 +110,18 @@ namespace StringToExpression.GrammerDefinitions
                     args.Add(operand);
                 }
 
-                //let the expression do its thing
-                var expression = ExpressionBuilder(args.Select(x => x.Expression).ToArray());
-
+              
                 //our new source map will encompass this operator and all its operands
                 var sourceMapSpan = StringSegment.Encompass(new[] { token.SourceMap }.Concat(args.Select(x => x.SourceMap)));
+
+                Expression expression;
+                try
+                {
+                    expression = ExpressionBuilder(args.Select(x => x.Expression).ToArray());
+                }catch(Exception ex)
+                {
+                    throw new OperationInvalidException(sourceMapSpan, ex);
+                }
 
                 state.Operands.Push(new Operand(expression, sourceMapSpan));
             }));

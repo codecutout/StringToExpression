@@ -12,11 +12,18 @@ namespace StringToExpression.Exceptions
     /// </summary>
     public abstract class ParseException : Exception
     {
-        public readonly StringSegment ExceptionLocation;
+        public readonly StringSegment ErrorSegment;
 
-        public ParseException(StringSegment exceptionLocation, string message)
+        public ParseException(StringSegment errorSegment, string message)
+            :base(message)
         {
-            ExceptionLocation = exceptionLocation;
+            ErrorSegment = errorSegment;
+        }
+
+        public ParseException(StringSegment errorSegment, string message, Exception innerException)
+            :base(message, innerException)
+        {
+            ErrorSegment = errorSegment;
         }
     }
 }

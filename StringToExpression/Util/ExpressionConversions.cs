@@ -120,6 +120,14 @@ namespace StringToExpression.Util
 
         }
 
+        public static Expression Convert(Expression exp, Type type)
+        {
+            return exp.Type == type
+                ? exp
+                : Expression.Convert(exp, type);
+
+        }
+
         /// <summary>
         /// Determines if expression is a null constant
         /// </summary>

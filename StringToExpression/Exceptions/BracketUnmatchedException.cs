@@ -6,7 +6,7 @@ namespace StringToExpression.Exceptions
     /// <summary>
     /// Exception when an bracket does not have a match
     /// </summary>
-    public class BracketUnmatchedException : Exception
+    public class BracketUnmatchedException : ParseException
     {
         /// <summary>
         /// StringSegment that contains the bracket that is unmatched
@@ -15,7 +15,7 @@ namespace StringToExpression.Exceptions
 
   
         public BracketUnmatchedException(StringSegment bracketStringSegment) 
-            : base($"Bracket '{bracketStringSegment.Value}' is unmatched")
+            : base(bracketStringSegment, $"Bracket '{bracketStringSegment.Value}' is unmatched")
         {
             BracketStringSegment = bracketStringSegment;
         }

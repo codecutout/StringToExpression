@@ -12,7 +12,7 @@ using Xunit;
 
 namespace StringToExpression.Test
 {
-    public class StringParserTests
+    public class ParserTests
     {
         [Fact]
         public void Should_parse_basic_expression()
@@ -208,6 +208,40 @@ namespace StringToExpression.Test
 
             var expression = language.Parse<double>("Log(1024,2) + 5");
             Assert.Equal(15, expression.Compile()());
+        }
+
+        [Fact]
+        public void Should_cast_function_params()
+        {
+            BracketOpenDefinition openBracket, logFn;
+            GrammerDefinition listDelimeter;
+            var language = new Language(
+               
+                 logFn = new FunctionCallDefinition(
+                    name: "LOG",
+                    regex: @"[Ll]og\(",
+                    argumentTypes: new[] { typeof(double), typeof(double) },
+                    expressionBuilder: args => Expression.Call(Type<int>.Method(x => Math.Log(0, 0)), args)),
+                openBracket = new BracketOpenDefinition(
+                    name: "OPENBRACKET",
+                    regex: @"\("),
+                listDelimeter = new ListDelimiterDefinition(
+                    name: "COMMA",
+                    regex: @"\,"),
+                new BracketCloseDefinition(
+                    name: "CLOSEBRACKET",
+                    regex: @"\)",
+                    bracketOpenDefinitions: new[] { openBracket, logFn },
+                    listDelimeterDefinition: listDelimeter),
+                new OperandDefinition(
+                    name: "NUMBER",
+                    regex: @"\d+",
+                    expressionBuilder: x => Expression.Constant(int.Parse(x))),
+                new GrammerDefinition(name: "WHITESPACE", regex: @"\s+", ignore: true)
+                );
+
+            var expression = language.Parse<double>("Log(1024,2)");
+            Assert.Equal(10, expression.Compile()());
         }
 
 
