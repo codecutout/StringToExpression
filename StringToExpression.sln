@@ -3,9 +3,13 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 14
 VisualStudioVersion = 14.0.25420.1
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "StringToExpression", "StringToExpression\StringToExpression.csproj", "{B1B0A26F-04E2-40E5-B25C-12764E50BEFC}"
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{DAB89BA5-F320-49BD-A68E-12E3C7191CDD}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "StringToExpression.Test", "StringToExpression.Test\StringToExpression.Test.csproj", "{D3E70B64-E690-40BC-800F-5C463386E951}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "StringToExpression", "src\StringToExpression\StringToExpression.csproj", "{B1B0A26F-04E2-40E5-B25C-12764E50BEFC}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "tests", "tests", "{03FEEEAD-4F6F-4573-83E4-E4CABAA242A8}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "StringToExpression.Test", "tests\StringToExpression.Test\StringToExpression.Test.csproj", "{D3E70B64-E690-40BC-800F-5C463386E951}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -24,5 +28,9 @@ Global
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{B1B0A26F-04E2-40E5-B25C-12764E50BEFC} = {DAB89BA5-F320-49BD-A68E-12E3C7191CDD}
+		{D3E70B64-E690-40BC-800F-5C463386E951} = {03FEEEAD-4F6F-4573-83E4-E4CABAA242A8}
 	EndGlobalSection
 EndGlobal
