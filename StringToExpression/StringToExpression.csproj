@@ -50,6 +50,7 @@
     <Compile Include="Exceptions\OperandUnexpectedException.cs" />
     <Compile Include="Exceptions\OperationInvalidException.cs" />
     <Compile Include="Exceptions\ParseException.cs" />
+    <Compile Include="Languages\ArithmeticLanguage.cs" />
     <Compile Include="Languages\ODataFilterLanguage.cs" />
     <Compile Include="Parser\Operand.cs" />
     <Compile Include="Parser\Operator.cs" />

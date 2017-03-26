@@ -67,8 +67,10 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Languages\Arithmetic\ArithmeticLangaugeTests.cs" />
     <Compile Include="Languages\ODataFilter\Fixtures\LinqToQuerystringTestDataFixture.cs" />
     <Compile Include="Languages\ODataFilter\LinqToQuerystringEquivalenceTests.cs" />
+    <Compile Include="Languages\ODataFilter\ODataArithmeticTests.cs" />
     <Compile Include="Parser\ParserErrorTests.cs" />
     <Compile Include="Parser\ParserTests.cs" />
     <Compile Include="Tokenizer\TokenizerTests.cs" />

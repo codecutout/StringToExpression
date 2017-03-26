@@ -242,17 +242,17 @@ namespace StringToExpression.Test
             Assert.Equal(linqToQuerystringFiltered, stringParserFiltered);
         }
 
-        [Fact(Skip = "Performance test")]
+        [Fact(Skip ="Performance sanity check.")]
         public void Should_be_faster_than_linqToQuerystring()
         {
             var baseDatetime = new DateTime(2003, 01, 01);
 
             var linqToQueryStringStopwatch = new Stopwatch();
             linqToQueryStringStopwatch.Start();
-            for(int i = 0; i < 5000; i++)
+            for(int i = 0; i < 10000; i++)
             {
                 var date = baseDatetime.AddDays(i).ToString("s");
-                var linqToQuerystringFiltered = Data.ConcreteCollection.LinqToQuerystring($"?$filter=Name eq 'Apple' and (Complete eq true or Date gt datetime'{date}')").ToList();
+                var linqToQuerystringFiltered = Data.ConcreteCollection.LinqToQuerystring($"?$filter=Name eq 'Apple' and (Complete eq true or Date gt datetime'{date}')");
             }
             linqToQueryStringStopwatch.Stop();
 
@@ -261,19 +261,14 @@ namespace StringToExpression.Test
             var parseStringStopwatch = new Stopwatch();
             parseStringStopwatch.Start();
             var language = new ODataFilterLanguage();
-            for (int i = 0; i < 5000; i++)
+            for (int i = 0; i < 10000; i++)
             {
                 var date = baseDatetime.AddDays(i).ToString("s");
                 var filter = language.Parse<LinqToQuerystringTestDataFixture.ConcreteClass>($"Name eq 'Apple' and (Complete eq true or Date gt datetime'{date}')");
-                var stringParserFiltered = Data.ConcreteCollection.Where(filter).ToList();
             }
             parseStringStopwatch.Stop();
-
             Assert.True(parseStringStopwatch.ElapsedMilliseconds < linqToQueryStringStopwatch.ElapsedMilliseconds);
         }
-
-
-
 
     }
 }

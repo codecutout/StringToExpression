@@ -85,15 +85,15 @@ namespace StringToExpression.LanguageDefinitions
 
                 new OperandDefinition(
                     name:"FLOAT",
-                    regex: @"\-?\d+?\.\d+?f",
+                    regex: @"\-?\d+?\.\d*f",
                     expressionBuilder: x => Expression.Constant(float.Parse(x.TrimEnd('f')))),
                 new OperandDefinition(
                     name:"DOUBLE",
-                    regex: @"\-?\d+\.?\d+?d",
+                    regex: @"\-?\d+\.?\d*d",
                     expressionBuilder: x => Expression.Constant(double.Parse(x.TrimEnd('d')))),
                 new OperandDefinition(
                     name:"DECIMAL_EXPLICIT",
-                    regex: @"\-?\d+\.?\d+?[m|M]",
+                    regex: @"\-?\d+\.?\d*[m|M]",
                     expressionBuilder: x => Expression.Constant(decimal.Parse(x.TrimEnd('m','M')))),
                 new OperandDefinition(
                     name:"DECIMAL",
@@ -178,27 +178,27 @@ namespace StringToExpression.LanguageDefinitions
                  new BinaryOperatorDefinition(
                     name:"ADD",
                     regex: @"add",
-                    orderOfPrecedence: 1,
+                    orderOfPrecedence: 2,
                     expressionBuilder: (left,right) => Expression.Add(left, right)),
                 new BinaryOperatorDefinition(
                     name:"SUB",
                     regex: @"sub",
                     orderOfPrecedence: 2,
-                    expressionBuilder: (left,right) => Expression.Add(left, right)),
+                    expressionBuilder: (left,right) => Expression.Subtract(left, right)),
                 new BinaryOperatorDefinition(
                     name:"MUL",
                     regex: @"mul",
-                    orderOfPrecedence: 3,
+                    orderOfPrecedence: 1,
                     expressionBuilder: (left,right) => Expression.Multiply(left, right)),
                 new BinaryOperatorDefinition(
                     name:"DIV",
                     regex: @"div",
-                    orderOfPrecedence: 4,
+                    orderOfPrecedence: 1,
                     expressionBuilder: (left,right) => Expression.Divide(left, right)),
                 new BinaryOperatorDefinition(
                     name:"MOD",
                     regex: @"mod",
-                    orderOfPrecedence: 5,
+                    orderOfPrecedence: 1,
                     expressionBuilder: (left,right) => Expression.Modulo(left, right)),
             };
         }
