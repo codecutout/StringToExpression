@@ -1,0 +1,1 @@
+..\.nuget\nuget.exe pack ..\src\StringToExpression\StringToExpression.csproj -Build -Prop Configuration=Release -OutputDirectory ..\artifacts
