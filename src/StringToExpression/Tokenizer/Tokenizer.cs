@@ -14,15 +14,20 @@ namespace StringToExpression.Tokenizer
     public class Tokenizer
     {
         /// <summary>
-        /// Configuration of the tokens
+        /// Configuration of the tokens.
         /// </summary>
         public readonly IReadOnlyList<GrammerDefinition> GrammerDefinitions;
 
         /// <summary>
-        /// Regex to identify tokens
+        /// Regex to identify tokens.
         /// </summary>
         protected readonly Regex TokenRegex;
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="Tokenizer"/> class.
+        /// </summary>
+        /// <param name="grammerDefinitions">The configuration for this language.</param>
+        /// <exception cref="GrammerDefinitionDuplicateNameException">Thrown when two definitions have the same name.</exception>
         public Tokenizer(params GrammerDefinition[] grammerDefinitions)
         {
             //throw if we have any duplicates
@@ -37,10 +42,10 @@ namespace StringToExpression.Tokenizer
         }
 
         /// <summary>
-        /// Convert text into a stream of tokens
+        /// Convert text into a stream of tokens.
         /// </summary>
-        /// <param name="text">text to tokenize</param>
-        /// <returns>stream of tokens</returns>
+        /// <param name="text">text to tokenize.</param>
+        /// <returns>stream of tokens.</returns>
         public IEnumerable<Token> Tokenize(string text)
         {
             var matches = TokenRegex.Matches(text).OfType<Match>();
@@ -49,7 +54,7 @@ namespace StringToExpression.Tokenizer
             foreach (var match in matches)
             {
                 if (match.Index > expectedIndex)
-                    throw new GrammerUnexpectedException(new StringSegment(text, expectedIndex, match.Index - expectedIndex));
+                    throw new GrammerUnknownException(new StringSegment(text, expectedIndex, match.Index - expectedIndex));
                 expectedIndex = match.Index + match.Length;
 
                 var matchedTokenDefinition = GrammerDefinitions.FirstOrDefault(x => match.Groups[x.Name].Success);

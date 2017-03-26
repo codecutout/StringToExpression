@@ -52,7 +52,7 @@ namespace StringToExpression.GrammerDefinitions
                     {
                         return ExpressionConversions.Convert(o.Expression, t);
                     }
-                    catch(InvalidOperationException ex)
+                    catch(InvalidOperationException)
                     {
                         //if we cant convert to the argument type then something is wrong with the argument
                         //so we will throw it up

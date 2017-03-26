@@ -7,6 +7,9 @@ using System.Threading.Tasks;
 
 namespace StringToExpression.Util
 {
+    /// <summary>
+    /// Provides utilities for converting Expressions.
+    /// </summary>
     public static class ExpressionConversions
     {
         private static Dictionary<Type, Type[]> ImplicitConverstions = new Dictionary<Type, Type[]>
@@ -19,12 +22,19 @@ namespace StringToExpression.Util
             { typeof(uint),    new[] { typeof(uint), typeof(long), typeof(ulong), typeof(float), typeof(double), typeof(decimal) }},
             { typeof(long),    new[] { typeof(long), typeof(float), typeof(double), typeof(decimal) }},
             { typeof(char),    new[] { typeof(char), typeof(ushort), typeof(int), typeof(uint), typeof(long), typeof(ulong), typeof(float), typeof(double), typeof(decimal) }},
-            { typeof(float),   new[] { typeof(float), typeof(double), /*not safe, but convineant*/ typeof(decimal) }},
+            { typeof(float),   new[] { typeof(float), typeof(double), /*not safe, but convineant -->*/ typeof(decimal) }},
             { typeof(ulong),   new[] { typeof(ulong), typeof(float), typeof(double), typeof(decimal) }},
-            { typeof(double),   new[] { typeof(double), /*not safe, but convineant*/ typeof(decimal) }},
+            { typeof(double),   new[] { typeof(double), /*not safe, but convineant -->*/ typeof(decimal) }},
             { typeof(decimal),   new[] { typeof(decimal) }},
         };
 
+        /// <summary>
+        /// Tries a type that both passed types can safetly convert to.
+        /// </summary>
+        /// <param name="type1"></param>
+        /// <param name="type2"></param>
+        /// <param name="commonType">Type that both passed types can convert to.</param>
+        /// <returns></returns>
         private static bool TryGetCommonType(Type type1, Type type2, out Type commonType)
         {
             commonType = null;
@@ -43,7 +53,7 @@ namespace StringToExpression.Util
         }
 
         /// <summary>
-        /// Attempt to convert the expression into a boolean
+        /// Attempt to convert the expression into a boolean.
         /// </summary>
         /// <param name="exp"></param>
         /// <returns></returns>
@@ -61,11 +71,13 @@ namespace StringToExpression.Util
         }
 
         /// <summary>
-        /// Attempts to perform the implicit conversion so both expressions are the same type
+        /// Attempts to perform the implicit conversion so both expressions are the same type.
         /// </summary>
-        /// <param name="exp1">first expression</param>
-        /// <param name="exp2">second expression</param>
-        /// <returns></returns>
+        /// <param name="exp1">first expression.</param>
+        /// <param name="exp2">second expression.</param>
+        /// <returns>
+        ///     <c>true</c> if a common type exists; otherwise, <c>false</c>.
+        /// </returns>
         public static bool TryImplicitlyConvert(ref Expression exp1, ref Expression exp2)
         {
             var type1 = exp1.Type;
@@ -86,7 +98,7 @@ namespace StringToExpression.Util
             if (nullable && type1 == type2)
             {
                 //if the underlying type is the same, the common type is
-                //just he nullable version
+                //just the nullable version
                 commonType = typeof(Nullable<>).MakeGenericType(type1);
             }
             else if (IsNullConstant(exp1))
@@ -120,19 +132,26 @@ namespace StringToExpression.Util
 
         }
 
+        /// <summary>
+        /// Converts an expression to the given type only if it is not that type already.
+        /// </summary>
+        /// <param name="exp"></param>
+        /// <param name="type"></param>
+        /// <returns>Expression of the given type</returns>
         public static Expression Convert(Expression exp, Type type)
         {
             return exp.Type == type
                 ? exp
                 : Expression.Convert(exp, type);
-
         }
 
         /// <summary>
-        /// Determines if expression is a null constant
+        /// Determines if expression is a null constant.
         /// </summary>
-        /// <param name="exp"></param>
-        /// <returns></returns>
+        /// <param name="exp">The exp.</param>
+        /// <returns>
+        ///   <c>true</c> if the expression is a null constant; otherwise, <c>false</c>.
+        /// </returns>
         public static bool IsNullConstant(Expression exp)
         {
             var constantExpression = exp as ConstantExpression;

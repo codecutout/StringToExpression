@@ -12,20 +12,48 @@ using StringToExpression.Exceptions;
 
 namespace StringToExpression.GrammerDefinitions
 {
+    /// <summary>
+    /// Defines a position relative to the current element.
+    /// </summary>
     public enum RelativePosition
     {
         Left,
         Right
     }
 
+    /// <summary>
+    ///  Represents a piece of grammer that defines an operator.
+    /// </summary>
+    /// <seealso cref="StringToExpression.GrammerDefinitions.GrammerDefinition" />
     public class OperatorDefinition : GrammerDefinition
     {
+        /// <summary>
+        /// A function given zero or more operands expressions, outputs a new operand.
+        /// </summary>
         public readonly Func<Expression[], Expression> ExpressionBuilder;
 
+        /// <summary>
+        /// Positions where parameters can be found.
+        /// </summary>
         public readonly IReadOnlyList<RelativePosition> ParamaterPositions;
 
+        /// <summary>
+        /// Relative order this operator should be applied. Lower orders are applied first.
+        /// </summary>
         public readonly int? OrderOfPrecedence;
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="OperatorDefinition"/> class.
+        /// </summary>
+        /// <param name="name">The name of the definition.</param>
+        /// <param name="regex">The regex to match tokens.</param>
+        /// <param name="paramaterPositions">The relative positions where parameters can be found.</param>
+        /// <param name="expressionBuilder">The function given zero or more operands expressions, outputs a new operand.</param>
+        /// <exception cref="System.ArgumentNullException">
+        /// paramaterPositions
+        /// or
+        /// expressionBuilder
+        /// </exception>
         public OperatorDefinition(string name,
            string regex,
            IEnumerable<RelativePosition> paramaterPositions,
@@ -34,6 +62,19 @@ namespace StringToExpression.GrammerDefinitions
         {
         }
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="OperatorDefinition"/> class.
+        /// </summary>
+        /// <param name="name">The name of the definition.</param>
+        /// <param name="regex">The regex to match tokens.</param>
+        /// <param name="orderOfPrecedence">The telative order this operator should be applied. Lower orders are applied first.</param>
+        /// <param name="paramaterPositions">The relative positions where parameters can be found.</param>
+        /// <param name="expressionBuilder">The function given zero or more operands expressions, outputs a new operand.</param>
+        /// <exception cref="System.ArgumentNullException">
+        /// paramaterPositions
+        /// or
+        /// expressionBuilder
+        /// </exception>
         public OperatorDefinition(string name, 
             string regex,
             int? orderOfPrecedence, 
@@ -51,6 +92,11 @@ namespace StringToExpression.GrammerDefinitions
             OrderOfPrecedence = orderOfPrecedence;
         }
 
+        /// <summary>
+        /// Applies the token to the parsing state
+        /// </summary>
+        /// <param name="token">The token to apply</param>
+        /// <param name="state">The state to apply the token to</param>
         public override void Apply(Token token, ParseState state)
         {
             //Apply previous operators if they have a high precedence and they share an operand

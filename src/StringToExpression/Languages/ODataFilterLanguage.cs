@@ -206,7 +206,6 @@ namespace StringToExpression.LanguageDefinitions
         protected virtual IEnumerable<GrammerDefinition> BracketDefinitions(IEnumerable<FunctionCallDefinition> functionCalls)
         {
             BracketOpenDefinition openBracket;
-            BracketOpenDefinition openFunctionBracket;
             ListDelimiterDefinition delimeter;
             return new GrammerDefinition[] {
                 openBracket = new BracketOpenDefinition(

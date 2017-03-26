@@ -4,16 +4,20 @@ using System;
 namespace StringToExpression.Exceptions
 {
     /// <summary>
-    /// Exception when an unknown token is found
+    /// Exception when an unknown grammer is encountered.
     /// </summary>
-    public class GrammerUnexpectedException : ParseException
+    public class GrammerUnknownException : ParseException
     {
         /// <summary>
-        /// Segment where the token was found
+        /// string segment where the token was found.
         /// </summary>
         public readonly StringSegment UnexpectedGrammerStringSegment;
 
-        public GrammerUnexpectedException(StringSegment unexpectedGrammerStringSegment) 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="GrammerUnknownException"/> class.
+        /// </summary>
+        /// <param name="unexpectedGrammerStringSegment">The location of the unknown grammer.</param>
+        public GrammerUnknownException(StringSegment unexpectedGrammerStringSegment) 
             : base(unexpectedGrammerStringSegment, $"Unexpected token '{unexpectedGrammerStringSegment.Value}' found")
         {
             UnexpectedGrammerStringSegment = unexpectedGrammerStringSegment;

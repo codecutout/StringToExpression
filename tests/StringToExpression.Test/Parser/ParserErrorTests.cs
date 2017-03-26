@@ -72,7 +72,7 @@ namespace StringToExpression.Test
 
 
         [Theory]
-        [InlineData("2 + xxxx + 3", typeof(GrammerUnexpectedException), 4,8)]
+        [InlineData("2 + xxxx + 3", typeof(GrammerUnknownException), 4,8)]
         [InlineData("2 + + 3", typeof(OperandExpectedException), 3,3)]
 
         [InlineData("2 + 2 2 + 3", typeof(OperandUnexpectedException), 6,7)]
