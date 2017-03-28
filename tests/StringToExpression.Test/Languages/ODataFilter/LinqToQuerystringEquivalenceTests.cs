@@ -242,6 +242,22 @@ namespace StringToExpression.Test
             Assert.Equal(linqToQuerystringFiltered, stringParserFiltered);
         }
 
+
+        [Theory]
+        [InlineData("concrete/complete")]
+        [InlineData("substringof('a',concrete/name)")]
+        public void When_property_paths_results_as_linqToQuerystring(string query)
+        {
+            var linqToQuerystringFiltered = Data.ComplexCollection.LinqToQuerystring("?$filter=" + query).ToList();
+
+            var filter = new ODataFilterLanguage().Parse<LinqToQuerystringTestDataFixture.ComplexClass>(query);
+            var stringParserFiltered = Data.ComplexCollection.Where(filter).ToList();
+
+            Assert.Equal(linqToQuerystringFiltered, stringParserFiltered);
+        }
+
+
+
         [Fact(Skip ="Performance sanity check.")]
         public void Should_be_faster_than_linqToQuerystring()
         {

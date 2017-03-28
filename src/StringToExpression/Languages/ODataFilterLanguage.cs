@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
 using System.Linq.Expressions;
+using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -338,10 +339,17 @@ namespace StringToExpression.LanguageDefinitions
             {
                  //Properties
                  new OperandDefinition(
-                    name:"PROPERTY",
-                    regex: @"(?<![0-9])[A-Za-z_][A-Za-z0-9_]*",
+                    name:"PROPERTY_PATH",
+                    regex: @"(?<![0-9])([A-Za-z_][A-Za-z0-9_]*/?)+",
                     expressionBuilder: (value, parameters) => {
-                    return Expression.MakeMemberAccess(parameters[0], parameters[0].Type.GetProperty(value));
+                        return value.Split('/').Aggregate((Expression)parameters[0], (exp, prop)=>
+                        {
+                            return Expression.MakeMemberAccess(exp, exp.Type.GetProperty(prop, 
+                                BindingFlags.Instance
+                                | BindingFlags.Public
+                                | BindingFlags.GetProperty
+                                | BindingFlags.IgnoreCase));
+                        });
                     }),
             };
         }
