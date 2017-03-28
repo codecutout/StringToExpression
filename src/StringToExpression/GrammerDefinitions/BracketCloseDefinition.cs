@@ -11,11 +11,30 @@ using StringToExpression.Util;
 
 namespace StringToExpression.GrammerDefinitions
 {
+    /// <summary>
+    /// Represents a closing bracket.
+    /// </summary>
+    /// <seealso cref="StringToExpression.GrammerDefinitions.GrammerDefinition" />
     public class BracketCloseDefinition : GrammerDefinition
     {
+        /// <summary>
+        /// The definitions that can be considered as the matching opening bracket.
+        /// </summary>
         public readonly IReadOnlyCollection<BracketOpenDefinition> BracketOpenDefinitions;
+
+        /// <summary>
+        /// The definition for the delimeter for a list of items.
+        /// </summary>
         public readonly GrammerDefinition ListDelimeterDefinition;
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="BracketCloseDefinition"/> class.
+        /// </summary>
+        /// <param name="name">The name of the definition.</param>
+        /// <param name="regex">The regex to match tokens.</param>
+        /// <param name="bracketOpenDefinitions">The definitions that can be considered as the matching opening bracket.</param>
+        /// <param name="listDelimeterDefinition">The definition for the delimeter for a list of items.</param>
+        /// <exception cref="System.ArgumentNullException">bracketOpenDefinitions</exception>
         public BracketCloseDefinition(string name, string regex,
             IEnumerable<BracketOpenDefinition> bracketOpenDefinitions,
             GrammerDefinition listDelimeterDefinition = null)
@@ -27,6 +46,13 @@ namespace StringToExpression.GrammerDefinitions
             this.ListDelimeterDefinition = listDelimeterDefinition;
         }
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="BracketCloseDefinition"/> class.
+        /// </summary>
+        /// <param name="name">The name of the definition.</param>
+        /// <param name="regex">The regex to match tokens.</param>
+        /// <param name="bracketOpenDefinition">The definition that can be considered as the matching opening bracket.</param>
+        /// <param name="listDelimeterDefinition">The definition for the delimeter for a list of items.</param>
         public BracketCloseDefinition(string name, string regex,
            BracketOpenDefinition bracketOpenDefinition,
            GrammerDefinition listDelimeterDefinition = null)
@@ -35,13 +61,14 @@ namespace StringToExpression.GrammerDefinitions
 
         }
 
-        private void ThrowIfOperatorNotBetweenSegments(Operand operand, StringSegment firstSegment, StringSegment secondSegment)
-        {
-
-          
-        }
-
-
+        /// <summary>
+        /// Applies the token to the parsing state. Will pop the operator stack executing all the operators storing each of the operands
+        /// When we reach an opening bracket it will pass the stored operands to the opening bracket to be processed.
+        /// </summary>
+        /// <param name="token">The token to apply.</param>
+        /// <param name="state">The state to apply the token to.</param>
+        /// <exception cref="OperandExpectedException">When there are delimeters but no operands between them.</exception>
+        /// <exception cref="BracketUnmatchedException">When there was no matching closing bracket.</exception>
         public override void Apply(Token token, ParseState state)
         {
             Stack<Operand> bracketOperands = new Stack<Operand>();
@@ -53,7 +80,6 @@ namespace StringToExpression.GrammerDefinitions
                 var currentOperator = state.Operators.Pop();
                 if (BracketOpenDefinitions.Contains(currentOperator.Definition))
                 {
-
                     var operand = state.Operands.Count > 0 ? state.Operands.Peek() : null;
                     var firstSegment = currentOperator.SourceMap;
                     var secondSegment = previousSeperator;
@@ -66,7 +92,6 @@ namespace StringToExpression.GrammerDefinitions
                         //if we have seperators then we should have something between the last seperator and the open bracket.
                         throw new OperandExpectedException(StringSegment.Between(firstSegment, secondSegment));
                     }
-
 
                     //pass our all bracket operands to the open bracket method, he will know
                     //what we should do.

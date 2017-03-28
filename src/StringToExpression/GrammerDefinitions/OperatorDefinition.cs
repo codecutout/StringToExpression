@@ -17,7 +17,14 @@ namespace StringToExpression.GrammerDefinitions
     /// </summary>
     public enum RelativePosition
     {
+        /// <summary>
+        /// To the left of the element.
+        /// </summary>
         Left,
+
+        /// <summary>
+        /// To the right of the element.
+        /// </summary>
         Right
     }
 
@@ -67,7 +74,7 @@ namespace StringToExpression.GrammerDefinitions
         /// </summary>
         /// <param name="name">The name of the definition.</param>
         /// <param name="regex">The regex to match tokens.</param>
-        /// <param name="orderOfPrecedence">The telative order this operator should be applied. Lower orders are applied first.</param>
+        /// <param name="orderOfPrecedence">The relative order this operator should be applied. Lower orders are applied first.</param>
         /// <param name="paramaterPositions">The relative positions where parameters can be found.</param>
         /// <param name="expressionBuilder">The function given zero or more operands expressions, outputs a new operand.</param>
         /// <exception cref="System.ArgumentNullException">
@@ -93,10 +100,12 @@ namespace StringToExpression.GrammerDefinitions
         }
 
         /// <summary>
-        /// Applies the token to the parsing state
+        /// Applies the token to the parsing state. Adds an operator to the state, when executed the operator will
+        /// check it has enough operands and they are in the correct position. It will then execute the expressionBuilder
+        /// placing the result in the state.
         /// </summary>
-        /// <param name="token">The token to apply</param>
-        /// <param name="state">The state to apply the token to</param>
+        /// <param name="token">The token to apply.</param>
+        /// <param name="state">The state to apply the token to.</param>
         public override void Apply(Token token, ParseState state)
         {
             //Apply previous operators if they have a high precedence and they share an operand

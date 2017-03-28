@@ -11,14 +11,26 @@ using System.Threading.Tasks;
 
 namespace StringToExpression.LanguageDefinitions
 {
+    /// <summary>
+    /// Provides the base class for parsing OData filter parameters.
+    /// </summary>
     public class ODataFilterLanguage
     {
         private readonly Language language;
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="ODataFilterLanguage"/> class.
+        /// </summary>
         public ODataFilterLanguage() {
             language = new Language(AllDefinitions().ToArray());
         }
 
+        /// <summary>
+        /// Parses the specified text converting it into a predicate expression
+        /// </summary>
+        /// <typeparam name="T">The input type</typeparam>
+        /// <param name="text">The text to parse.</param>
+        /// <returns></returns>
         public Expression<Func<T, bool>> Parse<T>(string text)
         {
             var parameters = new[] { Expression.Parameter(typeof(T)) };
@@ -29,6 +41,10 @@ namespace StringToExpression.LanguageDefinitions
             return Expression.Lambda<Func<T, bool>>(body, parameters);
         }
 
+        /// <summary>
+        /// Returns all the definitions used by the language.
+        /// </summary>
+        /// <returns></returns>
         protected virtual IEnumerable<GrammerDefinition> AllDefinitions()
         {
             IEnumerable<FunctionCallDefinition> functions;
@@ -37,12 +53,16 @@ namespace StringToExpression.LanguageDefinitions
             definitions.AddRange(functions = FunctionDefinitions());
             definitions.AddRange(BracketDefinitions(functions));
             definitions.AddRange(LogicalOperatorDefinitions());
-            definitions.AddRange(ArithmaticOperatorDefinitions());
+            definitions.AddRange(ArithmeticOperatorDefinitions());
             definitions.AddRange(PropertyDefinitions());
             definitions.AddRange(WhitespaceDefinitions());
             return definitions;
         }
 
+        /// <summary>
+        /// Returns the definitions for types used within the language.
+        /// </summary>
+        /// <returns></returns>
         protected virtual IEnumerable<GrammerDefinition> TypeDefinitions()
         {
             return new[]
@@ -112,6 +132,10 @@ namespace StringToExpression.LanguageDefinitions
             };
         }
 
+        /// <summary>
+        /// Returns the definitions for logic operators used within the language.
+        /// </summary>
+        /// <returns></returns>
         protected virtual IEnumerable<GrammerDefinition> LogicalOperatorDefinitions()
         {
             return new GrammerDefinition[]
@@ -163,7 +187,7 @@ namespace StringToExpression.LanguageDefinitions
                 new UnaryOperatorDefinition(
                     name:"NOT",
                     regex: @"not",
-                    operatorPrecedence:19,
+                    orderOfPrecedence:19,
                     operandPosition: RelativePosition.Right,
                     expressionBuilder: (arg) => {
                         ExpressionConversions.TryBoolean(ref arg);
@@ -172,7 +196,11 @@ namespace StringToExpression.LanguageDefinitions
             };
         }
 
-        protected virtual IEnumerable<GrammerDefinition> ArithmaticOperatorDefinitions()
+        /// <summary>
+        /// Returns the definitions for arithmetic operators used within the language.
+        /// </summary>
+        /// <returns></returns>
+        protected virtual IEnumerable<GrammerDefinition> ArithmeticOperatorDefinitions()
         {
             return new[]
             {
@@ -204,6 +232,11 @@ namespace StringToExpression.LanguageDefinitions
             };
         }
 
+        /// <summary>
+        /// Returns the definitions for brackets used within the language.
+        /// </summary>
+        /// <param name="functionCalls">The function calls in the language. (used as opening brackets)</param>
+        /// <returns></returns>
         protected virtual IEnumerable<GrammerDefinition> BracketDefinitions(IEnumerable<FunctionCallDefinition> functionCalls)
         {
             BracketOpenDefinition openBracket;
@@ -223,6 +256,10 @@ namespace StringToExpression.LanguageDefinitions
             };
         }
 
+        /// <summary>
+        /// Returns the definitions for functions used within the language.
+        /// </summary>
+        /// <returns></returns>
         protected virtual IEnumerable<FunctionCallDefinition> FunctionDefinitions()
         {
             return new[]
@@ -333,6 +370,10 @@ namespace StringToExpression.LanguageDefinitions
             };
         }
 
+        /// <summary>
+        /// Returns the definitions for property names used within the language.
+        /// </summary>
+        /// <returns></returns>
         protected virtual IEnumerable<GrammerDefinition> PropertyDefinitions()
         {
             return new[]
@@ -354,6 +395,10 @@ namespace StringToExpression.LanguageDefinitions
             };
         }
 
+        /// <summary>
+        /// Returns the definitions for whitespace used within the language.
+        /// </summary>
+        /// <returns></returns>
         protected virtual IEnumerable<GrammerDefinition> WhitespaceDefinitions()
         {
             return new[]

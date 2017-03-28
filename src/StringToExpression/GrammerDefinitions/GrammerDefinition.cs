@@ -55,10 +55,10 @@ namespace StringToExpression.GrammerDefinitions
         }
 
         /// <summary>
-        /// Applies the token to the parsing state
+        /// Applies the token to the parsing state.
         /// </summary>
-        /// <param name="token">The token to apply</param>
-        /// <param name="state">The state to apply the token to</param>
+        /// <param name="token">The token to apply.</param>
+        /// <param name="state">The state to apply the token to.</param>
         public virtual void Apply(Token token, ParseState state)
         {
 

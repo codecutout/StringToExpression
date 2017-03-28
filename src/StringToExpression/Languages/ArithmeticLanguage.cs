@@ -5,19 +5,31 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
 using System.Linq.Expressions;
+using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
 
 namespace StringToExpression.LanguageDefinitions
 {
+    /// <summary>
+    /// Represents a language to that handles basic mathmatics.
+    /// </summary>
     public class ArithmeticLanguage
     {
         private readonly Language language;
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="ArithmeticLanguage"/> class.
+        /// </summary>
         public ArithmeticLanguage() {
             language = new Language(AllDefinitions().ToArray());
         }
 
+        /// <summary>
+        /// Parses the specified text converting it into a expression action.
+        /// </summary>
+        /// <param name="text">The text to parse.</param>
+        /// <returns></returns>
         public Expression<Func<decimal>> Parse(string text)
         {
             var body = language.Parse(text);
@@ -25,6 +37,12 @@ namespace StringToExpression.LanguageDefinitions
             return Expression.Lambda<Func<decimal>>(body);
         }
 
+        /// <summary>
+        /// Parses the specified text converting it into an expression. The expression can take a single parameter
+        /// </summary>
+        /// <typeparam name="T">the type of the parameter.</typeparam>
+        /// <param name="text">The text to parse.</param>
+        /// <returns></returns>
         public Expression<Func<T, decimal>> Parse<T>(string text)
         {
             var parameters = new[] { Expression.Parameter(typeof(T)) };
@@ -33,6 +51,10 @@ namespace StringToExpression.LanguageDefinitions
             return Expression.Lambda<Func<T, decimal>>(body, parameters);
         }
 
+        /// <summary>
+        /// Returns all the definitions used by the language.
+        /// </summary>
+        /// <returns></returns>
         protected virtual IEnumerable<GrammerDefinition> AllDefinitions()
         {
             IEnumerable<FunctionCallDefinition> functions;
@@ -46,6 +68,10 @@ namespace StringToExpression.LanguageDefinitions
             return definitions;
         }
 
+        /// <summary>
+        /// Returns the definitions for types used within the language.
+        /// </summary>
+        /// <returns></returns>
         protected virtual IEnumerable<GrammerDefinition> TypeDefinitions()
         {
             return new[]
@@ -62,8 +88,10 @@ namespace StringToExpression.LanguageDefinitions
             };
         }
 
-        
-
+        /// <summary>
+        /// Returns the definitions for arithmetic operators used within the language.
+        /// </summary>
+        /// <returns></returns>
         protected virtual IEnumerable<GrammerDefinition> ArithmaticOperatorDefinitions()
         {
             return new[]
@@ -96,6 +124,11 @@ namespace StringToExpression.LanguageDefinitions
             };
         }
 
+        /// <summary>
+        /// Returns the definitions for brackets used within the language.
+        /// </summary>
+        /// <param name="functionCalls">The function calls in the language. (used as opening brackets)</param>
+        /// <returns></returns>
         protected virtual IEnumerable<GrammerDefinition> BracketDefinitions(IEnumerable<FunctionCallDefinition> functionCalls)
         {
             BracketOpenDefinition openBracket;
@@ -115,6 +148,10 @@ namespace StringToExpression.LanguageDefinitions
             };
         }
 
+        /// <summary>
+        /// Returns the definitions for functions used within the language.
+        /// </summary>
+        /// <returns></returns>
         protected virtual IEnumerable<FunctionCallDefinition> FunctionDefinitions()
         {
             return new[]
@@ -173,20 +210,34 @@ namespace StringToExpression.LanguageDefinitions
             };
         }
 
+        /// <summary>
+        /// Returns the definitions for property names used within the language.
+        /// </summary>
+        /// <returns></returns>
         protected virtual IEnumerable<GrammerDefinition> PropertyDefinitions()
         {
             return new[]
             {
-                 //Properties
                  new OperandDefinition(
-                    name:"PROPERTY",
-                    regex: @"(?<![0-9])[A-Za-z_][A-Za-z0-9_]*",
+                    name:"PROPERTY_PATH",
+                    regex: @"(?<![0-9])([A-Za-z_][A-Za-z0-9_]*\.?)+",
                     expressionBuilder: (value, parameters) => {
-                    return Expression.MakeMemberAccess(parameters[0], parameters[0].Type.GetProperty(value));
+                        return value.Split('.').Aggregate((Expression)parameters[0], (exp, prop)=>
+                        {
+                            return Expression.MakeMemberAccess(exp, exp.Type.GetProperty(prop,
+                                BindingFlags.Instance
+                                | BindingFlags.Public
+                                | BindingFlags.GetProperty
+                                | BindingFlags.IgnoreCase));
+                        });
                     }),
             };
         }
 
+        /// <summary>
+        /// Returns the definitions for whitespace used within the language.
+        /// </summary>
+        /// <returns></returns>
         protected virtual IEnumerable<GrammerDefinition> WhitespaceDefinitions()
         {
             return new[]

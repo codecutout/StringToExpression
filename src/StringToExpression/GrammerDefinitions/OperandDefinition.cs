@@ -50,11 +50,11 @@ namespace StringToExpression.GrammerDefinitions
         }
 
         /// <summary>
-        /// Applies the token to the parsing state
+        /// Applies the token to the parsing state. Adds the result of the expression builder to the state.
         /// </summary>
-        /// <param name="token">The token to apply</param>
-        /// <param name="state">The state to apply the token to</param>
-        /// <exception cref="StringToExpression.Exceptions.OperationInvalidException"></exception>
+        /// <param name="token">The token to apply.</param>
+        /// <param name="state">The state to apply the token to.</param>
+        /// <exception cref="StringToExpression.Exceptions.OperationInvalidException">When an error is encounted while running the expressionBuilder</exception>
         public override void Apply(Token token, ParseState state)
         {
             Expression expression;

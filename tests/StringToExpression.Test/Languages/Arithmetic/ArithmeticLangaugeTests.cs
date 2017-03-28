@@ -8,11 +8,25 @@ using Xunit;
 
 namespace StringToExpression.Test.Languages.Arithmetic
 {
+    public class Parameter
+    {
+        public int FavouriteNumber { get; set; }
+
+        public Limit Limits { get; set; }
+    }
+
+    public class Limit
+    {
+        public double Min { get; set; }
+        public double Max { get; set; }
+    }
+
     public class ArithmeticLangaugeTests
     {
         [Theory]
         [InlineData("1 + 1", 2)]
         [InlineData("2 + 2 * 5", 12)]
+        [InlineData("2 + -2 * 5", -8)]
         [InlineData("(2 + 2) * 5", 20)]
         [InlineData("4 - 2 * 5", -6)]
         [InlineData("(4 - 2) * 5", 10)]
@@ -39,6 +53,27 @@ namespace StringToExpression.Test.Languages.Arithmetic
             var function = language.Parse(math).Compile();
 
             Assert.Equal(result, function(), 3);
+
+        }
+
+        [Theory]
+        [InlineData("FavouriteNumber", 7)]
+        [InlineData("FavouriteNumber + 3", 10)]
+        [InlineData("Limits.Min + Limits.Max + FavouriteNumber", 7.5)]
+        public void When_parameters_should_evaluate(string math, decimal result)
+        {
+            var language = new ArithmeticLanguage();
+            var function = language.Parse<Parameter>(math).Compile();
+            var parameter = new Parameter()
+            {
+                FavouriteNumber = 7,
+                Limits = new Limit()
+                {
+                    Min = -1.0,
+                    Max = 1.5
+                }
+            };
+            Assert.Equal(result, function(parameter), 3);
 
         }
     }

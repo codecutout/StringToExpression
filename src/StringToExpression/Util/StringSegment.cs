@@ -198,7 +198,12 @@ namespace StringToExpression.Util
                         segment2.Start - segment1.End);
         }
 
-        
+        /// <summary>
+        /// Returns a <see cref="System.String" /> that represents this instance.
+        /// </summary>
+        /// <returns>
+        /// A <see cref="System.String" /> that represents this instance.
+        /// </returns>
         public override string ToString()
         {
             return Value;
