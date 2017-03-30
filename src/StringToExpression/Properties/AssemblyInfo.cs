@@ -19,7 +19,7 @@ Out of the box configuration is provided for parsing arithmetic expressions and 
 [assembly: ComVisible(false)]
 [assembly: Guid("b1b0a26f-04e2-40e5-b25c-12764e50befc")]
 
-[assembly: AssemblyVersion("0.1.0")]
-[assembly: AssemblyFileVersion("0.1.0")]
+[assembly: AssemblyVersion("0.9.1")]
+[assembly: AssemblyFileVersion("0.9.1")]
 [assembly: InternalsVisibleTo("StringToExpression.Test")]
 
