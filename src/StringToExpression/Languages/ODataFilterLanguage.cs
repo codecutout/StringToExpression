@@ -144,45 +144,45 @@ namespace StringToExpression.LanguageDefinitions
                     name:"EQ",
                     regex: @"eq",
                     orderOfPrecedence:11,
-                    expressionBuilder: (left,right) => Expression.Equal(left, right)),
+                    expressionBuilder: Expression.Equal),
                 new BinaryOperatorDefinition(
                     name:"NE",
                     regex: @"ne",
                     orderOfPrecedence:12,
-                    expressionBuilder: (left,right) => Expression.NotEqual(left, right)),
+                    expressionBuilder: Expression.NotEqual),
 
                 new BinaryOperatorDefinition(
                     name:"GT",
                     regex: @"gt",
                     orderOfPrecedence:13,
-                    expressionBuilder: (left,right) => Expression.GreaterThan(left, right)),
+                    expressionBuilder: Expression.GreaterThan),
                 new BinaryOperatorDefinition(
                     name:"GE",
                     regex: @"ge",
                     orderOfPrecedence:14,
-                    expressionBuilder: (left,right) => Expression.GreaterThanOrEqual(left, right)),
+                    expressionBuilder: Expression.GreaterThanOrEqual),
 
                 new BinaryOperatorDefinition(
                     name:"LT",
                     regex: @"lt",
                     orderOfPrecedence:15,
-                    expressionBuilder: (left,right) => Expression.LessThan(left, right)),
+                    expressionBuilder: Expression.LessThan),
                 new BinaryOperatorDefinition(
                     name:"LE",
                     regex: @"le",
                     orderOfPrecedence:16,
-                    expressionBuilder: (left,right) => Expression.LessThanOrEqual(left, right)),
+                    expressionBuilder: Expression.LessThanOrEqual),
 
                 new BinaryOperatorDefinition(
                     name:"AND",
                     regex: @"and",
                     orderOfPrecedence:17,
-                    expressionBuilder: (left,right) => Expression.And(left, right)),
+                    expressionBuilder: Expression.AndAlso),
                 new BinaryOperatorDefinition(
                     name:"OR",
                     regex: @"or",
                     orderOfPrecedence:18,
-                    expressionBuilder: (left,right) => Expression.Or(left, right)),
+                    expressionBuilder: Expression.OrElse),
 
                 new UnaryOperatorDefinition(
                     name:"NOT",
@@ -208,27 +208,27 @@ namespace StringToExpression.LanguageDefinitions
                     name:"ADD",
                     regex: @"add",
                     orderOfPrecedence: 2,
-                    expressionBuilder: (left,right) => Expression.Add(left, right)),
+                    expressionBuilder: Expression.Add),
                 new BinaryOperatorDefinition(
                     name:"SUB",
                     regex: @"sub",
                     orderOfPrecedence: 2,
-                    expressionBuilder: (left,right) => Expression.Subtract(left, right)),
+                    expressionBuilder: Expression.Subtract),
                 new BinaryOperatorDefinition(
                     name:"MUL",
                     regex: @"mul",
                     orderOfPrecedence: 1,
-                    expressionBuilder: (left,right) => Expression.Multiply(left, right)),
+                    expressionBuilder: Expression.Multiply),
                 new BinaryOperatorDefinition(
                     name:"DIV",
                     regex: @"div",
                     orderOfPrecedence: 1,
-                    expressionBuilder: (left,right) => Expression.Divide(left, right)),
+                    expressionBuilder: Expression.Divide),
                 new BinaryOperatorDefinition(
                     name:"MOD",
                     regex: @"mod",
                     orderOfPrecedence: 1,
-                    expressionBuilder: (left,right) => Expression.Modulo(left, right)),
+                    expressionBuilder: Expression.Modulo),
             };
         }
 
@@ -383,14 +383,11 @@ namespace StringToExpression.LanguageDefinitions
                     name:"PROPERTY_PATH",
                     regex: @"(?<![0-9])([A-Za-z_][A-Za-z0-9_]*/?)+",
                     expressionBuilder: (value, parameters) => {
-                        return value.Split('/').Aggregate((Expression)parameters[0], (exp, prop)=>
-                        {
-                            return Expression.MakeMemberAccess(exp, exp.Type.GetProperty(prop, 
-                                BindingFlags.Instance
-                                | BindingFlags.Public
-                                | BindingFlags.GetProperty
-                                | BindingFlags.IgnoreCase));
-                        });
+                        return value.Split('/').Aggregate((Expression)parameters[0], (exp, prop)=> Expression.MakeMemberAccess(exp, exp.Type.GetProperty(prop, 
+                            BindingFlags.Instance
+                            | BindingFlags.Public
+                            | BindingFlags.GetProperty
+                            | BindingFlags.IgnoreCase)));
                     }),
             };
         }
