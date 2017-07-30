@@ -34,8 +34,8 @@ namespace StringToExpression.Tokenizer
             var duplicateKey = grammerDefinitions.GroupBy(x => x.Name).FirstOrDefault(g => g.Count() > 1)?.Key;
             if (duplicateKey != null)
                 throw new GrammerDefinitionDuplicateNameException(duplicateKey);
-
-            GrammerDefinitions = grammerDefinitions.ToList().AsReadOnly();
+            
+            GrammerDefinitions = grammerDefinitions.ToList();
 
             var pattern = string.Join("|", GrammerDefinitions.Select(x => $"(?<{x.Name}>{x.Regex})"));
             this.TokenRegex = new Regex(pattern);

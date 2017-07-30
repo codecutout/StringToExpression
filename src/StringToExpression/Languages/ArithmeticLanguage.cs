@@ -224,11 +224,7 @@ namespace StringToExpression.LanguageDefinitions
                     expressionBuilder: (value, parameters) => {
                         return value.Split('.').Aggregate((Expression)parameters[0], (exp, prop)=>
                         {
-                            return Expression.MakeMemberAccess(exp, exp.Type.GetProperty(prop,
-                                BindingFlags.Instance
-                                | BindingFlags.Public
-                                | BindingFlags.GetProperty
-                                | BindingFlags.IgnoreCase));
+                            return Expression.MakeMemberAccess(exp, TypeShim.GetProperty(exp.Type, prop));
                         });
                     }),
             };

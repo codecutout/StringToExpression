@@ -1,0 +1,2 @@
+dotnet build ..\src\StringToExpression\StringToExpression.csproj --configuration=Release
+dotnet pack ..\src\StringToExpression\StringToExpression.csproj --configuration=Release --output ../../artifacts

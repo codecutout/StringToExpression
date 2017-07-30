@@ -41,7 +41,7 @@ namespace StringToExpression.GrammerDefinitions
             Func<Expression[], Expression> expressionBuilder)
             : base(name, regex)
         {
-            this.ArgumentTypes = argumentTypes?.ToList()?.AsReadOnly();
+            this.ArgumentTypes = argumentTypes?.ToList();
             this.ExpressionBuilder = expressionBuilder;
         }
 

@@ -42,7 +42,7 @@ namespace StringToExpression.GrammerDefinitions
         {
             if (bracketOpenDefinitions == null)
                 throw new ArgumentNullException(nameof(bracketOpenDefinitions));
-            this.BracketOpenDefinitions = bracketOpenDefinitions.ToList().AsReadOnly();
+            this.BracketOpenDefinitions = bracketOpenDefinitions.ToList();
             this.ListDelimeterDefinition = listDelimeterDefinition;
         }
 

@@ -94,7 +94,7 @@ namespace StringToExpression.GrammerDefinitions
             if (expressionBuilder == null)
                 throw new ArgumentNullException(nameof(expressionBuilder));
 
-            ParamaterPositions = paramaterPositions.ToList().AsReadOnly();
+            ParamaterPositions = paramaterPositions.ToList();
             ExpressionBuilder = expressionBuilder;
             OrderOfPrecedence = orderOfPrecedence;
         }
