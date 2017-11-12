@@ -1,7 +1,9 @@
 # StringToExpression
 StringToExpression allows you to create methods that take strings and outputs .NET expressions. It is highly configurable allowing you to define your own language with your own syntax.
 
-Two languages are provided out of hte box, an `ArithmeticLanguage` for performing algebra and an `ODataFilterLanguage` for parsing OData filter expressions.
+Two languages are provided out of the box, an `ArithmeticLanguage` for performing algebra and an `ODataFilterLanguage` for parsing OData filter expressions.
+
+[![NuGet version](https://badge.fury.io/nu/StringToExpression.svg)](https://badge.fury.io/nu/StringToExpression)
 
 ## Arithmetic
 A basic arithmetic language is provided. It can be used as is, or extended with customer function by extending `ArithmeticLanguage`
