@@ -209,6 +209,10 @@ namespace StringToExpression.Test
         [InlineData("Cost eq 111.111f")]
         [InlineData("Code eq 0x00")]
         [InlineData("Guid eq guid'" + LinqToQuerystringTestDataFixture.guid0 + "'")]
+        [InlineData("Name eq null")]
+        [InlineData("null eq Name")]
+        [InlineData("Name ne null")]
+        [InlineData("null ne Name")]
         public void When_nullable_data_should_return_same_results_as_linqToQuerystring(string query)
         {
             var linqToQuerystringFiltered = Data.NullableCollection.LinqToQuerystring("?$filter=" + query).ToList();
