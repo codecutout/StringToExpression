@@ -87,7 +87,7 @@ namespace StringToExpression.Test.Fixtures
             NullableCollection = new List<NullableClass>
             {
                 InstanceBuilders.BuildNull(),
-                InstanceBuilders.BuildNull(1, new DateTime(2002, 01, 01), true, 10000000000, 111.111, 111.111f, 0x00, guidArray[0])
+                InstanceBuilders.BuildNull(1, new DateTime(2002, 01, 01), true, 10000000000, 111.111, 111.111f, 0x00, guidArray[0], "Dogfood")
             }.AsQueryable();
         }
 
@@ -113,9 +113,9 @@ namespace StringToExpression.Test.Fixtures
                 return new NullableClass();
             }
 
-            public static NullableClass BuildNull(int? age, DateTime? date, bool? complete, long? population, double? value, float? cost, byte? code, Guid? guid)
+            public static NullableClass BuildNull(int? age, DateTime? date, bool? complete, long? population, double? value, float? cost, byte? code, Guid? guid, string name)
             {
-                return new NullableClass { Date = date, Age = age, Complete = complete, Population = population, Value = value, Cost = cost, Code = code, Guid = guid };
+                return new NullableClass { Date = date, Age = age, Complete = complete, Population = population, Value = value, Cost = cost, Code = code, Guid = guid, Name = name };
             }
         }
 
@@ -200,6 +200,8 @@ namespace StringToExpression.Test.Fixtures
         public class NullableClass
         {
             public int? Id { get; set; }
+
+            public string Name { get; set; }
 
             public DateTime? Date { get; set; }
 

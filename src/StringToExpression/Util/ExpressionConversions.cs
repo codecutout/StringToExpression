@@ -103,13 +103,30 @@ namespace StringToExpression.Util
             }
             else if (IsNullConstant(exp1))
             {
-                //one of our expressions is null, so convert the other side to a nullable
-                commonType = typeof(Nullable<>).MakeGenericType(type2);
+                // strings are already nullables
+                if (type2 == typeof(string))
+                {
+                    commonType = type2;
+                }
+                else
+                {
+                    //one of our expressions is null, so convert the other side to a nullable
+                    commonType = typeof(Nullable<>).MakeGenericType(type2);
+                }
             }
             else if (IsNullConstant(exp2))
             {
-                //the other side of the expression is null so convert the first side to a nullable
-                commonType = typeof(Nullable<>).MakeGenericType(type1);
+                // strings are already nullables
+                if (type1 == typeof(string))
+                {
+                    commonType = type1;
+                }
+                else
+                {
+                    //the other side of the expression is null so convert the first side to a nullable
+                    commonType = typeof(Nullable<>).MakeGenericType(type1);
+                }
+                
             }
             else if (TryGetCommonType(type1, type2, out commonType))
             {
