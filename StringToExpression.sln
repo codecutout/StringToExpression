@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 15
-VisualStudioVersion = 15.0.26228.12
+VisualStudioVersion = 15.0.27130.2027
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{DAB89BA5-F320-49BD-A68E-12E3C7191CDD}"
 EndProject
@@ -9,7 +9,13 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "tests", "tests", "{03FEEEAD
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "StringToExpression", "src\StringToExpression\StringToExpression.csproj", "{718F11D6-BD9A-4267-95D0-10446D7E0877}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "StringToExpression.Test", "tests\StringToExpression.Test\StringToExpression.Test.csproj", "{D2058E9F-F528-46CF-89CA-762473CECBB1}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "StringToExpression.Test", "tests\StringToExpression.Test\StringToExpression.Test.csproj", "{D2058E9F-F528-46CF-89CA-762473CECBB1}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "solution", "solution", "{611895B5-01E4-4250-9839-FD4302339B8A}"
+	ProjectSection(SolutionItems) = preProject
+		appveyor.yml = appveyor.yml
+		README.md = README.md
+	EndProjectSection
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -32,5 +38,8 @@ Global
 	GlobalSection(NestedProjects) = preSolution
 		{718F11D6-BD9A-4267-95D0-10446D7E0877} = {DAB89BA5-F320-49BD-A68E-12E3C7191CDD}
 		{D2058E9F-F528-46CF-89CA-762473CECBB1} = {03FEEEAD-4F6F-4573-83E4-E4CABAA242A8}
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {13135A16-FF7F-4EBB-8D27-64FC4ABBB276}
 	EndGlobalSection
 EndGlobal
