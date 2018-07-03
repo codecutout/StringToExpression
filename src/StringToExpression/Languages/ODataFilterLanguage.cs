@@ -16,6 +16,73 @@ namespace StringToExpression.LanguageDefinitions
     /// </summary>
     public class ODataFilterLanguage
     {
+        /// <summary>
+        /// Access to common String Members
+        /// </summary>
+        protected static class StringMembers
+        {
+            /// <summary>
+            /// The MethodInfo for the StartsWith method
+            /// </summary>
+            public static MethodInfo StartsWith = Type<string>.Method(x => x.StartsWith(default(string)));
+
+            /// <summary>
+            /// The MethodInfo for the EndsWith method
+            /// </summary>
+            public static MethodInfo EndsWith = Type<string>.Method(x => x.EndsWith(default(string)));
+
+            /// <summary>
+            /// The MethodInfo for the Contains method
+            /// </summary>
+            public static MethodInfo Contains = Type<string>.Method(x => x.Contains(default(string)));
+
+            /// <summary>
+            /// The MethodInfo for the ToLower method
+            /// </summary>
+            public static MethodInfo ToLower = Type<string>.Method(x => x.ToLower());
+
+            /// <summary>
+            /// The MethodInfo for the ToUpper method
+            /// </summary>
+            public static MethodInfo ToUpper = Type<string>.Method(x => x.ToUpper());
+        }
+
+        /// <summary>
+        /// Access to common DateTime Members
+        /// </summary>
+        protected static class DateTimeMembers
+        {
+            /// <summary>
+            /// The MemberInfo for the Year property
+            /// </summary>
+            public static MemberInfo Year = Type<DateTime>.Member(x => x.Year);
+
+            /// <summary>
+            /// The MemberInfo for the Month property
+            /// </summary>
+            public static MemberInfo Month = Type<DateTime>.Member(x => x.Month);
+
+            /// <summary>
+            /// The MemberInfo for the Day property
+            /// </summary>
+            public static MemberInfo Day = Type<DateTime>.Member(x => x.Day);
+
+            /// <summary>
+            /// The MemberInfo for the Hour property
+            /// </summary>
+            public static MemberInfo Hour = Type<DateTime>.Member(x => x.Hour);
+
+            /// <summary>
+            /// The MemberInfo for the Minute property
+            /// </summary>
+            public static MemberInfo Minute = Type<DateTime>.Member(x => x.Minute);
+
+            /// <summary>
+            /// The MemberInfo for the Second property
+            /// </summary>
+            public static MemberInfo Second = Type<DateTime>.Member(x => x.Second);
+        }
+
         private readonly Language language;
 
         /// <summary>
@@ -144,12 +211,12 @@ namespace StringToExpression.LanguageDefinitions
                     name:"EQ",
                     regex: @"eq",
                     orderOfPrecedence:11,
-                    expressionBuilder: (left,right) => Expression.Equal(left, right)),
+                    expressionBuilder: ConvertEnumsIfRequired((left,right) => Expression.Equal(left, right))),
                 new BinaryOperatorDefinition(
                     name:"NE",
                     regex: @"ne",
                     orderOfPrecedence:12,
-                    expressionBuilder: (left,right) => Expression.NotEqual(left, right)),
+                    expressionBuilder: ConvertEnumsIfRequired((left,right) => Expression.NotEqual(left, right))),
 
                 new BinaryOperatorDefinition(
                     name:"GT",
@@ -271,7 +338,7 @@ namespace StringToExpression.LanguageDefinitions
                     expressionBuilder: (parameters) => {
                         return Expression.Call(
                             instance:parameters[0], 
-                            method:Type<string>.Method(x=>x.StartsWith(null)),
+                            method:StringMembers.StartsWith,
                             arguments: new [] { parameters[1] });
                     }),
                 new FunctionCallDefinition(
@@ -281,7 +348,7 @@ namespace StringToExpression.LanguageDefinitions
                     expressionBuilder: (parameters) => {
                         return Expression.Call(
                             instance:parameters[0],
-                            method:Type<string>.Method(x=>x.EndsWith(null)),
+                            method:StringMembers.EndsWith,
                             arguments: new [] { parameters[1] });
                     }),
                  new FunctionCallDefinition(
@@ -291,7 +358,7 @@ namespace StringToExpression.LanguageDefinitions
                     expressionBuilder: (parameters) => {
                         return Expression.Call(
                             instance:parameters[1],
-                            method:Type<string>.Method(x=>x.Contains(null)),
+                            method:StringMembers.Contains,
                             arguments: new [] { parameters[0] });
                     }),
                 new FunctionCallDefinition(
@@ -301,7 +368,7 @@ namespace StringToExpression.LanguageDefinitions
                     expressionBuilder: (parameters) => {
                         return Expression.Call(
                             instance:parameters[0],
-                            method:Type<string>.Method(x=>x.ToLower()));
+                            method:StringMembers.ToLower);
                     }),
                 new FunctionCallDefinition(
                     name:"FN_TOUPPER",
@@ -310,7 +377,7 @@ namespace StringToExpression.LanguageDefinitions
                     expressionBuilder: (parameters) => {
                         return Expression.Call(
                             instance:parameters[0],
-                            method:Type<string>.Method(x=>x.ToUpper()));
+                            method:StringMembers.ToUpper);
                     }),
 
                  new FunctionCallDefinition(
@@ -320,7 +387,7 @@ namespace StringToExpression.LanguageDefinitions
                     expressionBuilder: (parameters) => {
                         return Expression.MakeMemberAccess(
                             parameters[0],
-                            Type<DateTime>.Member(x=>x.Day));
+                            DateTimeMembers.Day);
                     }),
                  new FunctionCallDefinition(
                     name:"FN_HOUR",
@@ -329,7 +396,7 @@ namespace StringToExpression.LanguageDefinitions
                     expressionBuilder: (parameters) => {
                         return Expression.MakeMemberAccess(
                             parameters[0],
-                            Type<DateTime>.Member(x=>x.Hour));
+                            DateTimeMembers.Hour);
                     }),
                   new FunctionCallDefinition(
                     name:"FN_MINUTE",
@@ -338,7 +405,7 @@ namespace StringToExpression.LanguageDefinitions
                     expressionBuilder: (parameters) => {
                         return Expression.MakeMemberAccess(
                             parameters[0],
-                            Type<DateTime>.Member(x=>x.Minute));
+                            DateTimeMembers.Minute);
                     }),
                   new FunctionCallDefinition(
                     name:"FN_MONTH",
@@ -347,7 +414,7 @@ namespace StringToExpression.LanguageDefinitions
                     expressionBuilder: (parameters) => {
                         return Expression.MakeMemberAccess(
                             parameters[0],
-                            Type<DateTime>.Member(x=>x.Month));
+                            DateTimeMembers.Month);
                     }),
                 new FunctionCallDefinition(
                     name:"FN_YEAR",
@@ -356,7 +423,7 @@ namespace StringToExpression.LanguageDefinitions
                     expressionBuilder: (parameters) => {
                         return Expression.MakeMemberAccess(
                             parameters[0],
-                            Type<DateTime>.Member(x=>x.Year));
+                            DateTimeMembers.Year);
                     }),
                  new FunctionCallDefinition(
                     name:"FN_SECOND",
@@ -365,7 +432,7 @@ namespace StringToExpression.LanguageDefinitions
                     expressionBuilder: (parameters) => {
                         return Expression.MakeMemberAccess(
                             parameters[0],
-                            Type<DateTime>.Member(x=>x.Second));
+                            DateTimeMembers.Second);
                     }),
             };
         }
@@ -401,6 +468,20 @@ namespace StringToExpression.LanguageDefinitions
         }
 
 
-        
+        /// <summary>
+        /// Wraps the function to convert any constants to enums if required
+        /// </summary>
+        /// <param name="expFn">Function to wrap</param>
+        /// <returns></returns>
+        protected Func<Expression, Expression, Expression> ConvertEnumsIfRequired(Func<Expression, Expression, Expression> expFn)
+        {
+            return (left, right) =>
+            {
+                var didConvertEnum = ExpressionConversions.TryEnumNumberConvert(ref left, ref right)
+                    || ExpressionConversions.TryEnumStringConvert(ref left, ref right, ignoreCase: true);
+
+                return expFn(left, right);
+            };
+        }
     }
 }

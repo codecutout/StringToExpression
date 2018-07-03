@@ -152,10 +152,19 @@ namespace StringToExpression.Test.Fixtures
 
             public decimal Score { get; set; }
 
+            public Color Color { get; set; }
+
             public int CompareTo(ConcreteClass other)
             {
                 return String.CompareOrdinal(this.Name, other.Name);
             }
+        }
+
+        public enum Color
+        {
+            red,
+            green,
+            blue
         }
 
         public class EdgeCaseClass : IComparable<EdgeCaseClass>

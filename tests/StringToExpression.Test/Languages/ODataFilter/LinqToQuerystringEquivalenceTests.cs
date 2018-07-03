@@ -12,16 +12,20 @@ using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using Xunit;
+using Xunit.Abstractions;
 
 namespace StringToExpression.Test
 {
     public class LinqToQueryStringEquivalenceTests : IClassFixture<LinqToQuerystringTestDataFixture>
     {
-        LinqToQuerystringTestDataFixture Data;
+        public readonly LinqToQuerystringTestDataFixture Data;
 
-        public LinqToQueryStringEquivalenceTests(LinqToQuerystringTestDataFixture data)
+        public readonly ITestOutputHelper Output;
+
+        public LinqToQueryStringEquivalenceTests(LinqToQuerystringTestDataFixture data, ITestOutputHelper output)
         {
             this.Data = data;
+            this.Output = output;
         }
 
         [Theory]
@@ -32,7 +36,6 @@ namespace StringToExpression.Test
         [InlineData("not Name eq 'Apple'")]
         [InlineData("Name ne 'Apple'")]
         [InlineData("not Name ne 'Apple'")]
-        [InlineData(@"not Name ne 'Apple'")]
         [InlineData("Age eq 4")]
         [InlineData("Age gt -4")]
         [InlineData("not Age eq 4")]
@@ -118,6 +121,7 @@ namespace StringToExpression.Test
         [InlineData("not Score lt 0.3m")]
         [InlineData("Score le 0.3m")]
         [InlineData("not Score le 0.3m")]
+        [InlineData("color eq 1")]
         [InlineData("Date eq datetime'2002-01-01T00:00'")]
         [InlineData("not Date eq datetime'2002-01-01T00:00'")]
         [InlineData("Date ne datetime'2002-01-01T00:00'")]
@@ -161,9 +165,9 @@ namespace StringToExpression.Test
         [InlineData(@"Name eq 'Apple\rBob'")]
         [InlineData(@"Name eq 'Apple""Bob'")]
         [InlineData(@"Name eq 'Apple\'Bob'")]
+       
         public void When_edgecase_data_should_return_same_results_as_linqToQuerystring(string query)
         {
-
             var linqToQuerystringFiltered = Data.EdgeCaseCollection.LinqToQuerystring("?$filter=" + query).ToList();
 
             var filter = new ODataFilterLanguage().Parse<LinqToQuerystringTestDataFixture.ConcreteClass>(query);
@@ -214,7 +218,7 @@ namespace StringToExpression.Test
         [InlineData("Name ne null")]
         [InlineData("null ne Name")]
         public void When_nullable_data_should_return_same_results_as_linqToQuerystring(string query)
-        {
+         {
             var linqToQuerystringFiltered = Data.NullableCollection.LinqToQuerystring("?$filter=" + query).ToList();
 
             var filter = new ODataFilterLanguage().Parse<LinqToQuerystringTestDataFixture.NullableClass>(query);
@@ -260,6 +264,15 @@ namespace StringToExpression.Test
             Assert.Equal(linqToQuerystringFiltered, stringParserFiltered);
         }
 
+        [Theory]
+        [InlineData(@"Id eq null")]
+        [InlineData(@"Id eq 'somestring'")]
+        [InlineData(@"Id eq Name")]
+        public void When_invalid_checks_should_error(string query)
+        {
+            var linqToQuerystringException = Assert.ThrowsAny<Exception>(()=>Data.ConcreteCollection.LinqToQuerystring("?$filter=" + query).ToList());
+            var stringToExprssionException = Assert.Throws<OperationInvalidException>(() => new ODataFilterLanguage().Parse<LinqToQuerystringTestDataFixture.ConcreteClass>(query));
+        }
 
 
         [Fact(Skip ="Performance sanity check.")]
@@ -287,6 +300,10 @@ namespace StringToExpression.Test
                 var filter = language.Parse<LinqToQuerystringTestDataFixture.ConcreteClass>($"Name eq 'Apple' and (Complete eq true or Date gt datetime'{date}')");
             }
             parseStringStopwatch.Stop();
+
+            Output.WriteLine($"LinqToQueryString Duration: {linqToQueryStringStopwatch.Elapsed}");
+            Output.WriteLine($"StringToExpression Duration: {parseStringStopwatch.Elapsed}");
+
             Assert.True(parseStringStopwatch.ElapsedMilliseconds < linqToQueryStringStopwatch.ElapsedMilliseconds);
         }
 
