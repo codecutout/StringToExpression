@@ -28,7 +28,7 @@ deploy:
 - provider: GitHub
   release: v$(semver)
   auth_token:
-    secure: gXbKvXCpJ7lATfojiHtJlVpYYeGXCsIdHTumgAqK/4rlnNApfXNTiCaUV5QoB42K
+    secure: YywQETyUzGaUkJglZ0PZtDz/Jf+uZKhpXHvV0Ktia2FqW4FTSPQZ1MLn4kcM+tsq
   artifact: nupkg
   on:
     branch: master
