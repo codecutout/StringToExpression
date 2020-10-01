@@ -209,51 +209,51 @@ namespace StringToExpression.LanguageDefinitions
             {
                 new BinaryOperatorDefinition(
                     name:"EQ",
-                    regex: @"eq",
+                    regex: @"\b(eq)\b",
                     orderOfPrecedence:11,
                     expressionBuilder: ConvertEnumsIfRequired((left,right) => Expression.Equal(left, right))),
                 new BinaryOperatorDefinition(
                     name:"NE",
-                    regex: @"ne",
+                    regex: @"\b(ne)\b",
                     orderOfPrecedence:12,
                     expressionBuilder: ConvertEnumsIfRequired((left,right) => Expression.NotEqual(left, right))),
 
                 new BinaryOperatorDefinition(
                     name:"GT",
-                    regex: @"gt",
+                    regex: @"\b(gt)\b",
                     orderOfPrecedence:13,
                     expressionBuilder: (left,right) => Expression.GreaterThan(left, right)),
                 new BinaryOperatorDefinition(
                     name:"GE",
-                    regex: @"ge",
+                    regex: @"\b(ge)\b",
                     orderOfPrecedence:14,
                     expressionBuilder: (left,right) => Expression.GreaterThanOrEqual(left, right)),
 
                 new BinaryOperatorDefinition(
                     name:"LT",
-                    regex: @"lt",
+                    regex: @"\b(lt)\b",
                     orderOfPrecedence:15,
                     expressionBuilder: (left,right) => Expression.LessThan(left, right)),
                 new BinaryOperatorDefinition(
                     name:"LE",
-                    regex: @"le",
+                    regex: @"\b(le)\b",
                     orderOfPrecedence:16,
                     expressionBuilder: (left,right) => Expression.LessThanOrEqual(left, right)),
 
                 new BinaryOperatorDefinition(
                     name:"AND",
-                    regex: @"and",
+                    regex: @"\b(and)\b",
                     orderOfPrecedence:17,
                     expressionBuilder: (left,right) => Expression.And(left, right)),
                 new BinaryOperatorDefinition(
                     name:"OR",
-                    regex: @"or",
+                    regex: @"\b(or)\b",
                     orderOfPrecedence:18,
                     expressionBuilder: (left,right) => Expression.Or(left, right)),
 
                 new UnaryOperatorDefinition(
                     name:"NOT",
-                    regex: @"not",
+                    regex: @"\b(not)\b",
                     orderOfPrecedence:19,
                     operandPosition: RelativePosition.Right,
                     expressionBuilder: (arg) => {
@@ -273,27 +273,27 @@ namespace StringToExpression.LanguageDefinitions
             {
                  new BinaryOperatorDefinition(
                     name:"ADD",
-                    regex: @"add",
+                    regex: @"\b(add)\b",
                     orderOfPrecedence: 2,
                     expressionBuilder: (left,right) => Expression.Add(left, right)),
                 new BinaryOperatorDefinition(
                     name:"SUB",
-                    regex: @"sub",
+                    regex: @"\b(sub)\b",
                     orderOfPrecedence: 2,
                     expressionBuilder: (left,right) => Expression.Subtract(left, right)),
                 new BinaryOperatorDefinition(
                     name:"MUL",
-                    regex: @"mul",
+                    regex: @"\b(mul)\b",
                     orderOfPrecedence: 1,
                     expressionBuilder: (left,right) => Expression.Multiply(left, right)),
                 new BinaryOperatorDefinition(
                     name:"DIV",
-                    regex: @"div",
+                    regex: @"\b(div)\b",
                     orderOfPrecedence: 1,
                     expressionBuilder: (left,right) => Expression.Divide(left, right)),
                 new BinaryOperatorDefinition(
                     name:"MOD",
-                    regex: @"mod",
+                    regex: @"\b(mod)\b",
                     orderOfPrecedence: 1,
                     expressionBuilder: (left,right) => Expression.Modulo(left, right)),
             };

@@ -15,7 +15,7 @@ namespace StringToExpression.Test.Languages.ODataFilter
 {
     public class ODataEnumerationTests
     {
-        public enum Numbers  { One = 1, Two = 2, Three = 3, Five = 5 }
+        public enum Numbers { One = 1, Two = 2, Three = 3, Five = 5 }
 
         public class EnumHolder
         {
@@ -24,9 +24,11 @@ namespace StringToExpression.Test.Languages.ODataFilter
             public Numbers? NullableNumber { get; set; }
 
             public string NumberString { get; set; }
+
+            public bool Order { get; set; } = true;
         }
 
-        
+
         [Theory]
         [InlineData("Number eq 2", new[] { Numbers.Two })]
         [InlineData("Number ne 2", new[] { Numbers.One, Numbers.Three, Numbers.Five })]
@@ -47,13 +49,14 @@ namespace StringToExpression.Test.Languages.ODataFilter
         [InlineData("toupper('five') eq Number", new[] { Numbers.Five })]
         [InlineData("NullableNumber eq Number", new[] { Numbers.One, Numbers.Two, Numbers.Three, Numbers.Five })]
         [InlineData("NullableNumber ne Number", new Numbers[0])]
+        [InlineData("order eq false", new[] { Numbers.Five })]
         public void When_filtering_enumeration_should_parse(string query, Numbers[] expectedNumbers)
         {
             var data = new[]{
                 new EnumHolder() { Number = Numbers.One, NullableNumber = Numbers.One },
                 new EnumHolder() { Number = Numbers.Two, NullableNumber = Numbers.Two },
                 new EnumHolder() { Number = Numbers.Three, NullableNumber = Numbers.Three },
-                new EnumHolder() { Number = Numbers.Five, NullableNumber = Numbers.Five },
+                new EnumHolder() { Number = Numbers.Five, NullableNumber = Numbers.Five, Order = false },
             }.AsQueryable();
 
             var filter = new ODataFilterLanguage().Parse<EnumHolder>(query);
@@ -82,7 +85,7 @@ namespace StringToExpression.Test.Languages.ODataFilter
 
         public void When_filtering_nullable_enumeration_should_parse(string query, Numbers[] expectedNumbers)
         {
-            
+
             var data = new[]{
                 new EnumHolder() { NullableNumber = Numbers.One },
                 new EnumHolder() { NullableNumber = Numbers.Two },
@@ -108,7 +111,7 @@ namespace StringToExpression.Test.Languages.ODataFilter
         [InlineData("Number eq NumberString")] //we do not support non-constant strings
         public void When_filtering_bad_enum_const_should_error_on_parse(string query)
         {
-            var ex = Assert.Throws<OperationInvalidException>(()=>new ODataFilterLanguage().Parse<EnumHolder>(query));
+            var ex = Assert.Throws<OperationInvalidException>(() => new ODataFilterLanguage().Parse<EnumHolder>(query));
         }
 
     }
