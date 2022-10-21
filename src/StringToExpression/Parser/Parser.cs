@@ -21,9 +21,9 @@ namespace StringToExpression.Parser
         /// <param name="tokens">The stream of tokens to parse.</param>
         /// <param name="parameters">Any parameters that should be accessible by the operands and operators.</param>
         /// <returns>An Expression that is the compiled state of all the tokens in the stream.</returns>
-        public Expression Parse(IEnumerable<Token> tokens, IEnumerable<ParameterExpression> parameters = null)
+        public Expression Parse(IEnumerable<Token> tokens, IEnumerable<Accessor> parameters = null)
         {
-            parameters = parameters ?? Enumerable.Empty<ParameterExpression>();
+            parameters = parameters ?? Enumerable.Empty<Accessor>();
 
             var compileState = new ParseState();
             compileState.Parameters.AddRange(parameters);

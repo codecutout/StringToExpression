@@ -1,4 +1,5 @@
 ﻿using StringToExpression.GrammerDefinitions;
+using StringToExpression.Parser;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -44,7 +45,7 @@ namespace StringToExpression
         /// <returns>
         /// expression that represents the input string.
         /// </returns>
-        public Expression Parse(string text, params ParameterExpression[] parameters)
+        public Expression Parse(string text, params Accessor[] parameters)
         {
             var tokenStream = this.Tokenizer.Tokenize(text);
             var expression = Parser.Parse(tokenStream, parameters);
@@ -76,10 +77,10 @@ namespace StringToExpression
         /// </returns>
         public Expression<Func<TIn, TOut>> Parse<TIn, TOut>(string text)
         {
-            var parameters = new[] { Expression.Parameter(typeof(TIn)) };
+            var parameters = new[] { (Accessor)Expression.Parameter(typeof(TIn)) };
             var body = this.Parse(text, parameters);
 
-            return Expression.Lambda<Func<TIn, TOut>>(body, parameters);
+            return Expression.Lambda<Func<TIn, TOut>>(body, parameters.Select(p => p.Expression));
         }
     }
 }

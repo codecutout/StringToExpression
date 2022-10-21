@@ -1,4 +1,5 @@
 ﻿using StringToExpression.GrammerDefinitions;
+using StringToExpression.Parser;
 using StringToExpression.Util;
 using System;
 using System.Collections.Generic;
@@ -45,10 +46,10 @@ namespace StringToExpression.LanguageDefinitions
         /// <returns></returns>
         public Expression<Func<T, decimal>> Parse<T>(string text)
         {
-            var parameters = new[] { Expression.Parameter(typeof(T)) };
+            var parameters = new[] { (Accessor)Expression.Parameter(typeof(T)) };
             var body = language.Parse(text, parameters);
             body = ExpressionConversions.Convert(body, typeof(decimal));
-            return Expression.Lambda<Func<T, decimal>>(body, parameters);
+            return Expression.Lambda<Func<T, decimal>>(body, parameters.Select(p => p.Expression));
         }
 
         /// <summary>
