@@ -47,7 +47,7 @@ namespace StringToExpression.GrammerDefinitions
                     break;
                 case "any(":
                     methodName = nameof(Enumerable.Any);
-                    break;                
+                    break;
                 default:
                     throw new NotImplementedException($"{bracketOpen.SourceMap.Value} is an unknown collection definition");
             }
@@ -56,7 +56,8 @@ namespace StringToExpression.GrammerDefinitions
 
             var methodCall = Expression.Call(
                 typeof(Enumerable), methodName, new[] { operandType },
-                state.Operands.Pop().Expression, Expression.Lambda(bracketOperands.Pop().Expression, state.Parameters.LastOrDefault().Expression));
+                state.Operands.Pop().Expression, 
+                Expression.Lambda(bracketOperands.Pop().Expression, state.Parameters.FirstOrDefault(p => p.Expression.Type == operandType).Expression));
 
             var functionSourceMap = StringSegment.Encompass(bracketOpen.SourceMap, operandSource);
 

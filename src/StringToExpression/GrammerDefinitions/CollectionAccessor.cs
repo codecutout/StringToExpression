@@ -21,7 +21,7 @@ namespace StringToExpression.GrammerDefinitions
         public override void Apply(Token token, ParseState state)
         {
             var tokenValue = token.Value.Replace(":", "");
-            var genType = state.Operands.ToArray().LastOrDefault().Expression.Type.GenericTypeArguments.FirstOrDefault();
+            var genType = state.Operands.ToArray().FirstOrDefault().Expression.Type.GenericTypeArguments.FirstOrDefault();
 
             var paramExpression = Expression.Parameter(genType, tokenValue);
 
