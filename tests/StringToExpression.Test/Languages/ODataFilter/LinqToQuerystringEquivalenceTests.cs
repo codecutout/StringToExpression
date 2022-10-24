@@ -274,7 +274,10 @@ namespace StringToExpression.Test
         [InlineData("ConcreteCollection/any(c: c/Children/any(ci: ci/Age gt 41 and ci/Name eq 'Mark Ruffalo'))")]
         [InlineData("ConcreteCollection/any(c: c/Children/any(ci: ci/Age gt 41) and c/Name eq 'Banana')")]
         [InlineData("ConcreteCollection/any(c: c/Children/any(ci: ci/Age gt 41)) and Title eq 'David'")]
-        [InlineData("ConcreteCollection/any(c: c/Name eq Concrete/Name)")] // I think linqToQuery is wrong here?
+        //[InlineData("ConcreteCollection/any(c: c/Name eq Concrete/Name)")] // I think linqToQuery is wrong here?
+        [InlineData("ConcreteCollection/all(c: c/Age ge 3)")]
+        [InlineData("ConcreteCollection/all(c: c/Age ge 3) and StringCollection/any(sc: sc eq 'Brad')")]
+        [InlineData("ConcreteCollection/all(c: c/Age ge 3) and Title eq 'Boris'")]
         public void When_collection_filter_results_as_linqToQuerystring(string query)
         {
             var lingqToQuerystringFiltered = Data.ComplexCollection.LinqToQuerystring("?$filter=" + query).ToList();

@@ -456,7 +456,7 @@ namespace StringToExpression.LanguageDefinitions
                     ),
                  new OperandDefinition(
                     name:"PROPERTY_PATH",
-                    regex: @"(?<![0-9])([A-Za-z_][A-Za-z0-9_]*\/?(?!any))+",
+                    regex: @"(?<![0-9])([A-Za-z_][A-Za-z0-9_]*\/?(?!any|all))+",
                     expressionBuilder: OperandBuilder
                     ),
             };
@@ -495,7 +495,7 @@ namespace StringToExpression.LanguageDefinitions
             return new[]
             {
                 new GrammerDefinition(name: "WHITESPACE", regex: @"\s+", ignore: true),
-                new GrammerDefinition(name: "SLASH", regex: @"\/(?=any)", ignore: true)
+                new GrammerDefinition(name: "SLASH", regex: @"\/(?=any|all)", ignore: true)
             };
         }
 
@@ -506,6 +506,11 @@ namespace StringToExpression.LanguageDefinitions
                 new CollectionDefinition(
                     name: "ANY",
                     regex: @"any\(",
+                    expressionBuilder: CreateCollectionAccess
+                ),
+                new CollectionDefinition(
+                    name: "ALL",
+                    regex: @"all\(",
                     expressionBuilder: CreateCollectionAccess
                 )
             };
