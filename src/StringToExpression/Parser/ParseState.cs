@@ -15,7 +15,7 @@ namespace StringToExpression.Parser
         /// <summary>
         /// Gets the parameters that can be used during the parsing.
         /// </summary>
-        public List<ParameterExpression> Parameters { get; } = new List<ParameterExpression>();
+        public List<Accessor> Parameters { get; } = new List<Accessor>();
 
         /// <summary>
         /// Gets the current stack of operands.
@@ -23,9 +23,8 @@ namespace StringToExpression.Parser
         public Stack<Operand> Operands { get; } = new Stack<Operand>();
 
         /// <summary>
-        /// Gets  the current stack of operators.
+        /// Gets  the current stack of operators. i.e. + - * /
         /// </summary>
         public Stack<Operator> Operators { get; } = new Stack<Operator>();
-       
     }
 }

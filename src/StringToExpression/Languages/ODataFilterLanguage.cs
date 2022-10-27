@@ -1,4 +1,5 @@
 ﻿using StringToExpression.GrammerDefinitions;
+using StringToExpression.Parser;
 using StringToExpression.Util;
 using System;
 using System.Collections.Generic;
@@ -6,8 +7,6 @@ using System.Globalization;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace StringToExpression.LanguageDefinitions
 {
@@ -88,7 +87,8 @@ namespace StringToExpression.LanguageDefinitions
         /// <summary>
         /// Initializes a new instance of the <see cref="ODataFilterLanguage"/> class.
         /// </summary>
-        public ODataFilterLanguage() {
+        public ODataFilterLanguage()
+        {
             language = new Language(AllDefinitions().ToArray());
         }
 
@@ -100,12 +100,12 @@ namespace StringToExpression.LanguageDefinitions
         /// <returns></returns>
         public Expression<Func<T, bool>> Parse<T>(string text)
         {
-            var parameters = new[] { Expression.Parameter(typeof(T)) };
+            var parameters = new[] { (Accessor)Expression.Parameter(typeof(T)) };
             var body = language.Parse(text, parameters);
 
             ExpressionConversions.TryBoolean(ref body);
 
-            return Expression.Lambda<Func<T, bool>>(body, parameters);
+            return Expression.Lambda<Func<T, bool>>(body, parameters.Select(p => p.Expression));
         }
 
         /// <summary>
@@ -115,10 +115,13 @@ namespace StringToExpression.LanguageDefinitions
         protected virtual IEnumerable<GrammerDefinition> AllDefinitions()
         {
             IEnumerable<FunctionCallDefinition> functions;
+            IEnumerable<CollectionDefinition> collections;
+
             var definitions = new List<GrammerDefinition>();
             definitions.AddRange(TypeDefinitions());
+            definitions.AddRange(collections = CollectionDefinitions());
             definitions.AddRange(functions = FunctionDefinitions());
-            definitions.AddRange(BracketDefinitions(functions));
+            definitions.AddRange(BracketDefinitions(functions, collections));
             definitions.AddRange(LogicalOperatorDefinitions());
             definitions.AddRange(ArithmeticOperatorDefinitions());
             definitions.AddRange(PropertyDefinitions());
@@ -304,10 +307,11 @@ namespace StringToExpression.LanguageDefinitions
         /// </summary>
         /// <param name="functionCalls">The function calls in the language. (used as opening brackets)</param>
         /// <returns></returns>
-        protected virtual IEnumerable<GrammerDefinition> BracketDefinitions(IEnumerable<FunctionCallDefinition> functionCalls)
+        protected virtual IEnumerable<GrammerDefinition> BracketDefinitions(IEnumerable<FunctionCallDefinition> functionCalls, IEnumerable<CollectionDefinition> collectionCalls)
         {
             BracketOpenDefinition openBracket;
             ListDelimiterDefinition delimeter;
+
             return new GrammerDefinition[] {
                 openBracket = new BracketOpenDefinition(
                     name: "OPEN_BRACKET",
@@ -318,7 +322,7 @@ namespace StringToExpression.LanguageDefinitions
                 new BracketCloseDefinition(
                     name: "CLOSE_BRACKET",
                     regex: @"\)",
-                    bracketOpenDefinitions: new[] { openBracket }.Concat(functionCalls),
+                    bracketOpenDefinitions: new[] { openBracket }.Concat(functionCalls).Concat(collectionCalls),
                     listDelimeterDefinition: delimeter)
             };
         }
@@ -337,7 +341,7 @@ namespace StringToExpression.LanguageDefinitions
                     argumentTypes: new[] {typeof(string), typeof(string) },
                     expressionBuilder: (parameters) => {
                         return Expression.Call(
-                            instance:parameters[0], 
+                            instance:parameters[0],
                             method:StringMembers.StartsWith,
                             arguments: new [] { parameters[1] });
                     }),
@@ -443,16 +447,43 @@ namespace StringToExpression.LanguageDefinitions
         /// <returns></returns>
         protected virtual IEnumerable<GrammerDefinition> PropertyDefinitions()
         {
-            return new[]
+            return new GrammerDefinition[]
             {
                  //Properties
+                 new CollectionAccessor(
+                    name: "ACCESSOR", 
+                    regex:@"(?<=\()[a-z]+?:"
+                    ),
                  new OperandDefinition(
                     name:"PROPERTY_PATH",
-                    regex: @"(?<![0-9])([A-Za-z_][A-Za-z0-9_]*/?)+",
-                    expressionBuilder: (value, parameters) => {
-                        return value.Split('/').Aggregate((Expression)parameters[0], (exp, prop)=> Expression.MakeMemberAccess(exp, TypeShim.GetProperty(exp.Type, prop)));
-                    }),
+                    regex: @"(?<![0-9])([A-Za-z_][A-Za-z0-9_]*\/?(?!any|all))+",
+                    expressionBuilder: OperandBuilder
+                    ),
             };
+        }
+
+        private static Expression OperandBuilder(string value, Accessor[] parameters)
+        {
+            Expression parameter;
+            var values = value.Split('/').ToList();            
+
+            if (parameters.Any(p => !string.IsNullOrWhiteSpace(p.Pattern) && p.Pattern.ToLower() == values[0].ToLower()))
+            {
+                parameter = parameters.FirstOrDefault(p => !string.IsNullOrWhiteSpace(p.Pattern) && p.Pattern.ToLower() == values[0].ToLower());
+                values.RemoveAt(0);
+            }
+            else
+            {
+                parameter = parameters[0].Expression;
+            }
+
+            return values.Aggregate(parameter, CreateMemberAccess);
+        }
+
+        private static Expression CreateMemberAccess(Expression exp, string prop)
+        {
+            var memberAccess = Expression.MakeMemberAccess(exp, TypeShim.GetProperty(exp.Type, prop));
+            return memberAccess;
         }
 
         /// <summary>
@@ -463,8 +494,33 @@ namespace StringToExpression.LanguageDefinitions
         {
             return new[]
             {
-                new GrammerDefinition(name: "WHITESPACE", regex: @"\s+", ignore: true)
+                new GrammerDefinition(name: "WHITESPACE", regex: @"\s+", ignore: true),
+                new GrammerDefinition(name: "SLASH", regex: @"\/(?=any|all)", ignore: true)
             };
+        }
+
+        protected virtual IEnumerable<CollectionDefinition> CollectionDefinitions()
+        {
+            return new[]
+            {
+                new CollectionDefinition(
+                    name: "ANY",
+                    regex: @"any\(",
+                    expressionBuilder: CreateCollectionAccess
+                ),
+                new CollectionDefinition(
+                    name: "ALL",
+                    regex: @"all\(",
+                    expressionBuilder: CreateCollectionAccess
+                )
+            };
+        }
+
+        private static Expression CreateCollectionAccess(string param, string source, ParameterExpression[] parameterExpressions)
+        {
+            //var expParam = Expression.Parameter(parameterExpressions[0], "sc");
+
+            return null;
         }
 
 

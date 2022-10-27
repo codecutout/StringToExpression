@@ -165,7 +165,7 @@ namespace StringToExpression.Test
         [InlineData(@"Name eq 'Apple\rBob'")]
         [InlineData(@"Name eq 'Apple""Bob'")]
         [InlineData(@"Name eq 'Apple\'Bob'")]
-       
+
         public void When_edgecase_data_should_return_same_results_as_linqToQuerystring(string query)
         {
             var linqToQuerystringFiltered = Data.EdgeCaseCollection.LinqToQuerystring("?$filter=" + query).ToList();
@@ -218,7 +218,7 @@ namespace StringToExpression.Test
         [InlineData("Name ne null")]
         [InlineData("null ne Name")]
         public void When_nullable_data_should_return_same_results_as_linqToQuerystring(string query)
-         {
+        {
             var linqToQuerystringFiltered = Data.NullableCollection.LinqToQuerystring("?$filter=" + query).ToList();
 
             var filter = new ODataFilterLanguage().Parse<LinqToQuerystringTestDataFixture.NullableClass>(query);
@@ -265,24 +265,48 @@ namespace StringToExpression.Test
         }
 
         [Theory]
+        [InlineData("ConcreteCollection/any(c: c/Age gt 4)")]
+        [InlineData("ConcreteCollection/any(c: c/Age lt 3)")]
+        [InlineData("ConcreteCollection/any(c: c/Age ge 4)")]
+        [InlineData("ConcreteCollection/any(c: c/Age ge 4) and Title eq 'Charles'")]
+        [InlineData("ConcreteCollection/any(c: c/Age lt 3 and c/Name eq 'Apple')")]
+        [InlineData("ConcreteCollection/any(c: c/Children/any(ci: ci/Age gt 41))")]
+        [InlineData("ConcreteCollection/any(c: c/Children/any(ci: ci/Age gt 41 and ci/Name eq 'Mark Ruffalo'))")]
+        [InlineData("ConcreteCollection/any(c: c/Children/any(ci: ci/Age gt 41) and c/Name eq 'Banana')")]
+        [InlineData("ConcreteCollection/any(c: c/Children/any(ci: ci/Age gt 41)) and Title eq 'David'")]
+        //[InlineData("ConcreteCollection/any(c: c/Name eq Concrete/Name)")] // I think linqToQuery is wrong here?
+        [InlineData("ConcreteCollection/all(c: c/Age ge 3)")]
+        [InlineData("ConcreteCollection/all(c: c/Age ge 3) and StringCollection/any(sc: sc eq 'Brad')")]
+        [InlineData("ConcreteCollection/all(c: c/Age ge 3) and Title eq 'Boris'")]
+        public void When_collection_filter_results_as_linqToQuerystring(string query)
+        {
+            var lingqToQuerystringFiltered = Data.ComplexCollection.LinqToQuerystring("?$filter=" + query).ToList();
+
+            var filter = new ODataFilterLanguage().Parse<LinqToQuerystringTestDataFixture.ComplexClass>(query);
+            var stringParserFiltered = Data.ComplexCollection.Where(filter).ToList();
+
+            Assert.Equal(lingqToQuerystringFiltered, stringParserFiltered);
+        }
+
+        [Theory]
         [InlineData(@"Id eq null")]
         [InlineData(@"Id eq 'somestring'")]
         [InlineData(@"Id eq Name")]
         public void When_invalid_checks_should_error(string query)
         {
-            var linqToQuerystringException = Assert.ThrowsAny<Exception>(()=>Data.ConcreteCollection.LinqToQuerystring("?$filter=" + query).ToList());
+            var linqToQuerystringException = Assert.ThrowsAny<Exception>(() => Data.ConcreteCollection.LinqToQuerystring("?$filter=" + query).ToList());
             var stringToExprssionException = Assert.Throws<OperationInvalidException>(() => new ODataFilterLanguage().Parse<LinqToQuerystringTestDataFixture.ConcreteClass>(query));
         }
 
 
-        [Fact(Skip ="Performance sanity check.")]
+        [Fact(Skip = "Performance sanity check.")]
         public void Should_be_faster_than_linqToQuerystring()
         {
             var baseDatetime = new DateTime(2003, 01, 01);
 
             var linqToQueryStringStopwatch = new Stopwatch();
             linqToQueryStringStopwatch.Start();
-            for(int i = 0; i < 10000; i++)
+            for (int i = 0; i < 10000; i++)
             {
                 var date = baseDatetime.AddDays(i).ToString("s");
                 var linqToQuerystringFiltered = Data.ConcreteCollection.LinqToQuerystring($"?$filter=Name eq 'Apple' and (Complete eq true or Date gt datetime'{date}')");
@@ -290,7 +314,7 @@ namespace StringToExpression.Test
             linqToQueryStringStopwatch.Stop();
 
 
-           
+
             var parseStringStopwatch = new Stopwatch();
             parseStringStopwatch.Start();
             var language = new ODataFilterLanguage();

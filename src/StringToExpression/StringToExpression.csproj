@@ -1,7 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFrameworks>netstandard1.0;net45</TargetFrameworks>
+    <TargetFrameworks>net48</TargetFrameworks>
     <Company>Codecutout</Company>
     <Authors>Alex Davies</Authors>
     <Description>StringToExpression supports the compiling a domain specific string into a .NET expression.

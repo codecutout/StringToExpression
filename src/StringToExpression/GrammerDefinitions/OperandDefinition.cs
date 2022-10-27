@@ -19,7 +19,7 @@ namespace StringToExpression.GrammerDefinitions
         /// <summary>
         /// A function to generate the operator's Expression.
         /// </summary>
-        public readonly Func<string, ParameterExpression[], Expression> ExpressionBuilder;
+        public readonly Func<string, Accessor[], Expression> ExpressionBuilder;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="OperandDefinition"/> class.
@@ -41,7 +41,7 @@ namespace StringToExpression.GrammerDefinitions
         /// <param name="regex">The regex to match tokens.</param>
         /// <param name="expressionBuilder">The function to generate the operator's Expression given the token's value and parsing state parameters.</param>
         /// <exception cref="System.ArgumentNullException">expressionBuilder</exception>
-        public OperandDefinition(string name, string regex, Func<string, ParameterExpression[], Expression> expressionBuilder)
+        public OperandDefinition(string name, string regex, Func<string, Accessor[], Expression> expressionBuilder)
            : base(name, regex)
         {
             if (expressionBuilder == null)
@@ -58,6 +58,7 @@ namespace StringToExpression.GrammerDefinitions
         public override void Apply(Token token, ParseState state)
         {
             Expression expression;
+
             try
             {
                 expression = ExpressionBuilder(token.Value, state.Parameters.ToArray());
