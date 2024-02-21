@@ -12,7 +12,7 @@ Out of the box configuration is provided for parsing arithmetic expressions and 
     <PackageProjectUrl>https://github.com/codecutout/StringToExpression</PackageProjectUrl>
     <PackageTags>Expression Filter OData Arithmetic DSL</PackageTags>
     <GeneratePackageOnBuild>True</GeneratePackageOnBuild>
-    <Version>1.1.1</Version>
+    <Version>2.1.1</Version>
     <PackageReleaseNotes>Add checks to prevent keywords from being identified within property names.</PackageReleaseNotes>
   </PropertyGroup>
 
