@@ -1,0 +1,36 @@
+name: test
+
+on:
+  pull_request:
+    branches: [master]
+    types: [synchronize, opened, reopened, ready_for_review, unlabeled]
+    paths-ignore:
+      - 'README.md'
+  push:
+    branches: [master]
+    paths-ignore:
+      - 'README.md'
+
+jobs:
+  build:
+
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v4
+    - name: Setup .NET
+      uses: actions/setup-dotnet@v4
+      with:
+        dotnet-version: 8.0.*
+    - name: Install dotnet-validate
+      run: dotnet tool install --global dotnet-validate --version 0.0.1-preview.304
+    - name: Restore dependencies
+      run: dotnet restore
+    - name: Build
+      run: dotnet build -p:ContinuousIntegrationBuild=true --configuration Release --no-restore
+    - name: Test
+      run: dotnet test --configuration Release --no-build --verbosity normal
+    - name: Pack
+      run: dotnet pack --output ./artifacts --no-build
+    - name: Validate NuGet package
+      run: dotnet-validate package local artifacts/*.nupkg

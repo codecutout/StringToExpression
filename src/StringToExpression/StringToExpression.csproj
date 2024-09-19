@@ -1,19 +1,21 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
+	<PropertyGroup>
+		<TargetFrameworks>netstandard2.0</TargetFrameworks>
+		<LangVersion>7.3</LangVersion>
+		<GeneratePackageOnBuild>True</GeneratePackageOnBuild>
+		<Company>Codecutout</Company>
+		<Authors>Alex Davies</Authors>
+		<Description>StringToExpression supports the compiling a domain specific string into a .NET expression.
 
-  <PropertyGroup>
-    <TargetFrameworks>netstandard2.0</TargetFrameworks>
-    <Company>Codecutout</Company>
-    <Authors>Alex Davies</Authors>
-    <Description>StringToExpression supports the compiling a domain specific string into a .NET expression.
-
-Out of the box configuration is provided for parsing arithmetic expressions and for parsing OData filter strings. Although can be configured to parse string of any format</Description>
-    <Copyright>Copyright ©  2017</Copyright>
-    <PackageLicenseUrl>https://github.com/codecutout/StringToExpression/blob/master/LICENSE</PackageLicenseUrl>
-    <PackageProjectUrl>https://github.com/codecutout/StringToExpression</PackageProjectUrl>
-    <PackageTags>Expression Filter OData Arithmetic DSL</PackageTags>
-    <GeneratePackageOnBuild>True</GeneratePackageOnBuild>
-    <Version>2.1.1</Version>
-    <PackageReleaseNotes>Add checks to prevent keywords from being identified within property names.</PackageReleaseNotes>
-  </PropertyGroup>
-
+	Out of the box configuration is provided for parsing arithmetic expressions and for parsing OData filter strings. Although can be configured to parse string of any format</Description>
+		<PackageLicenseExpression>MIT</PackageLicenseExpression>
+		<PackageProjectUrl>https://github.com/codecutout/StringToExpression</PackageProjectUrl>
+		<PackageTags>Expression Filter OData Arithmetic DSL</PackageTags>
+		<PublishRepositoryUrl>true</PublishRepositoryUrl>
+		<IncludeSymbols>true</IncludeSymbols>
+		<SymbolPackageFormat>snupkg</SymbolPackageFormat>
+	</PropertyGroup>
+	<ItemGroup>
+		<None Include="..\..\README.md" Pack="true" PackagePath="\"/>
+	</ItemGroup>
 </Project>
