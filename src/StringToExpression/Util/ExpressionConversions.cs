@@ -240,6 +240,28 @@ namespace StringToExpression.Util
         }
 
         /// <summary>
+        /// Try to converts an expression to the given type only if it is not that type already.
+        /// </summary>
+        /// <param name="exp"></param>
+        /// <param name="type"></param>
+        /// <param name="result">Expression of the given type</param>
+        /// <returns><c>true</c> if a common type exists; otherwise, <c>false</c>.</returns>
+        public static bool TryConvert(Expression exp, Type type, out Expression result)
+        {
+            try
+            {
+                result = Convert(exp, type);
+                return true;
+            }
+            
+            catch (InvalidOperationException)
+            {
+                result = default(Expression);
+                return false;
+            }
+        }
+
+        /// <summary>
         /// Determines if expression is a null constant.
         /// </summary>
         /// <param name="exp">The exp.</param>

@@ -34,6 +34,62 @@ public async Task<IHttpActionResult> GetDoohickies([FromUri(Name = "$filter")] s
 
 `StringToExpression` has the advantage of being configurable; if the OData parser doesnt support methods you want, (or it supports methods you dont want) it is very easy to extend `ODataFilterLanguage` and modify the configuration
 
+### Supported Operations
+
+| Operators            | Name                  | Example                            |
+|----------------------|-----------------------|------------------------------------|
+| eq                   | Equal                 | City eq 'Redmond'                  |
+| ne                   | Not equal             | City ne 'London'                   |
+| gt                   | Greater than          | Price gt 20                        |
+| ge                   | Greater than or equal | Price ge 10                        |
+| lt                   | Less than             | Price lt 20                        |
+| le                   | Less than or equal    | Price le 100                       |
+| and                  | Logical and           | Price le 200 and Price gt 3.5      |
+| or                   | Logical or            | Price le 3.5 or Price gt 200       |
+| not                  | Logical negation      | not endswith(Description,'milk')   |
+| add                  | Addition              | Price add 5 gt 10                  |
+| sub                  | Subtraction           | Price sub 5 gt 10                  |
+| mul                  | Multiplication        | Price mul 2 gt 2000                |
+| div                  | Division              | Price div 2 gt 4                   |
+| mod                  | Modulo                | Price mod 2 eq 0                   |
+| ( )                  | Precedence grouping   | (Price sub 5) gt 10                |
+| /                    | Property access       | Address/City eq 'Redmond'          |
+
+### Supported Functions
+
+| String Functions                                          | Example                                           |
+|-----------------------------------------------------------|---------------------------------------------------|
+| bool substringof(string po, string p1)                    | substringof('day', 'Monday') eq true              |
+| bool endswith(string p0, string p1)                       | endswith('Monday', 'day') eq true                 |
+| bool startswith(string p0, string p1)                     | startswith('Monday', 'Mon') eq true               |
+| int length(string p0)                                     | length('Monday') eq 6 | Price ge 10               |
+| int indexof(string p0, string p1)                         | indexof('Monday', 'n') eq 2                       |
+| string replace(string p0, string find, string replace)    | replace('Monday', 'Mon', 'Satur') eq 'Saturday'   |
+| string substring(string p0, int pos)                      | substring('Monday', 3) eq 'day'                   |
+| string substring(string p0, int pos, int length)          | substring('Monday', 3, 2) eq 'da'                 |
+| string tolower(string p0)                                 | tolower('Monday') eq 'monday'                     |
+| string toupper(string p0)                                 | toupper('Monday') eq 'MONDAY'                     |
+| string trim(string p0)                                    | trim('  Monday  ') eq 'Monday'                    |
+| string concat(string p0, string p1)                       | concat('Mon', 'day') eq 'Monday'                  |
+
+| Date Functions                                            | Example                                           |
+|-----------------------------------------------------------|---------------------------------------------------|
+| int day(DateTime p0)	                                    | day(datetime'2000-01-02T03:04:05') eq 2           |
+| int hour(DateTime p0)	                                    | hour(datetime'2000-01-02T03:04:05') eq 3          |
+| int minute(DateTime p0)                                   | minute(datetime'2000-01-02T03:04:05') eq 4        |
+| int month(DateTime p0)                                    | month(datetime'2000-01-02T03:04:05') eq 1         |
+| int second(DateTime p0)                                   | second(datetime'2000-01-02T03:04:05') eq 5        |
+| int year(DateTime p0)                                     | year(datetime'2000-01-02T03:04:05') eq 2000       |
+
+| Math Functions                                            | Example                                           |
+|-----------------------------------------------------------|---------------------------------------------------|
+| double round(double p0)	                                | round(10.4) eq 10 <br/> round(10.6) eq 11 </br> round(10.5) eq 10 <br/> round(11.5) eq 12
+| double floor(double p0)                                   | floor(10.6) eq 10
+| decimal floor(decimal p0)                                 | month(datetime'2000-01-02T03:04:05') eq 1
+| double ceiling(double p0)                                 | ceiling(10.4) eq 11
+
+
+
 ## Custom languages
 Languages are defined by a set of `GrammerDefintions`. These define both how the string is broken up into tokens as well as the behaviour of each token. There are many subclasses of `GrammerDefinition` that makes implementing standard language features very easy. 
 

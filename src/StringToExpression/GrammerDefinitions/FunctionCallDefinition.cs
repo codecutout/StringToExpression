@@ -17,15 +17,33 @@ namespace StringToExpression.GrammerDefinitions
     /// <seealso cref="StringToExpression.GrammerDefinitions.BracketOpenDefinition" />
     public class FunctionCallDefinition : BracketOpenDefinition
     {
-        /// <summary>
-        /// Argument types that the function accepts.
-        /// </summary>
-        public readonly IReadOnlyList<Type> ArgumentTypes;
+
+        public class Overload
+        {
+            /// <summary>
+            /// Argument types that the function accepts.
+            /// </summary>
+            public readonly IReadOnlyList<Type> ArgumentTypes;
+
+            /// <summary>
+            /// A function given the arguments, outputs a new operand.
+            /// </summary>
+            public readonly Func<Expression[], Expression> ExpressionBuilder;
+
+            public Overload(
+                IEnumerable<Type> argumentTypes,
+                Func<Expression[], Expression> expressionBuilder)
+            {
+                this.ArgumentTypes = argumentTypes?.ToList();
+                this.ExpressionBuilder = expressionBuilder;
+            }
+        }
+
 
         /// <summary>
-        /// A function given the arguments, outputs a new operand.
+        /// Function overlaods
         /// </summary>
-        public readonly Func<Expression[], Expression> ExpressionBuilder;
+        public readonly IReadOnlyList<Overload> Overloads;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="FunctionCallDefinition"/> class.
@@ -39,10 +57,29 @@ namespace StringToExpression.GrammerDefinitions
             string regex,
             IEnumerable<Type> argumentTypes,
             Func<Expression[], Expression> expressionBuilder)
+            : this(name, regex, new[] { new Overload(argumentTypes, expressionBuilder) })
+        {
+
+        }
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="FunctionCallDefinition"/> class.
+        /// </summary>
+        /// <param name="name">The name of the definition.</param>
+        /// <param name="regex">The regex to match tokens.</param>
+        /// <param name="overloads">list of overloads avilable for function</param>
+        public FunctionCallDefinition(
+            string name,
+            string regex,
+            IEnumerable<Overload> overloads)
             : base(name, regex)
         {
-            this.ArgumentTypes = argumentTypes?.ToList();
-            this.ExpressionBuilder = expressionBuilder;
+            var overloadList = overloads?.ToList();
+            if (overloadList.Count == 0)
+            {
+                throw new ArgumentException("Must specify at least one overlaod", nameof(overloads));
+            }
+            this.Overloads = overloadList;
         }
 
         /// <summary>
@@ -54,6 +91,58 @@ namespace StringToExpression.GrammerDefinitions
         public FunctionCallDefinition(string name, string regex,Func<Expression[], Expression> expressionBuilder)
            : this(name, regex, null, expressionBuilder)
         {
+        }
+
+
+        public Overload MatchOverload(Stack<Operand> bracketOperands, out IEnumerable<Expression> typedArguments)
+        {
+            var possibleOverloads = Overloads
+               .Where(x => x.ArgumentTypes == null || x.ArgumentTypes.Count == bracketOperands.Count)
+               .OrderBy(x=>x.ArgumentTypes == null);
+
+            // No viable overloads, user has probably inputted wrong number of arguments
+            if (!possibleOverloads.Any())
+            {
+                throw new FunctionArgumentCountException(
+                    StringSegment.Encompass(bracketOperands.Select(x => x.SourceMap)), 
+                    Overloads.First().ArgumentTypes.Count, 
+                    bracketOperands.Count);
+            }
+
+            foreach(var possibleOverload in possibleOverloads)
+            {
+                //null argument types is treated as a I can accept anything
+                if (possibleOverload.ArgumentTypes == null)
+                {
+                    typedArguments = bracketOperands.Select(x => x.Expression);
+                    return possibleOverload;
+                }
+
+                var argumentMatch = bracketOperands.Zip(possibleOverload.ArgumentTypes, (o, t) => {
+                    var canConvert = ExpressionConversions.TryConvert(o.Expression, t, out var result);
+                    return new { CanConvert = canConvert, Operand = o, ArgumentType = t, ConvertedOperand = result };
+                });
+
+
+                if (argumentMatch.All(x => x.CanConvert))
+                {
+                    typedArguments = argumentMatch.Select(x => x.ConvertedOperand);
+                    return possibleOverload;
+                }
+
+                // If we have only a single possible overlaod but we arguement types dont align
+                // we will throw an error as though they had the wrong types
+                if (possibleOverloads.Count() == 1)
+                {
+                    var badConvert = argumentMatch.First(x => !x.CanConvert);
+                    throw new FunctionArgumentTypeException(badConvert.Operand.SourceMap, badConvert.ArgumentType, badConvert.Operand.Expression.Type);
+                }
+            }
+
+            //We had multiple overloads, but none of them matched
+            throw new FunctionOverlaodNotFoundException(StringSegment.Encompass(bracketOperands.Select(x => x.SourceMap)));
+
+
         }
 
         /// <summary>
@@ -68,39 +157,19 @@ namespace StringToExpression.GrammerDefinitions
         /// <exception cref="OperationInvalidException">When an error occured while executing the expressionBuilder</exception>
         public override void ApplyBracketOperands(Operator bracketOpen, Stack<Operand> bracketOperands, Operator bracketClose, ParseState state)
         {
-            var operandSource = StringSegment.Encompass(bracketOperands.Select(x => x.SourceMap));
-            var functionArguments = bracketOperands.Select(x => x.Expression);
-            //if we have been given specific argument types validate them
-            if (ArgumentTypes != null)
-            {
-                var expectedArgumentCount = ArgumentTypes.Count;
-                if (expectedArgumentCount != bracketOperands.Count)
-                    throw new FunctionArgumentCountException(
-                        operandSource,
-                        expectedArgumentCount,
-                        bracketOperands.Count);
+            var functionSourceMap = StringSegment.Encompass(
+                bracketOpen.SourceMap, 
+                StringSegment.Encompass(bracketOperands.Select(x => x.SourceMap)), 
+                bracketClose.SourceMap);
 
-                functionArguments = bracketOperands.Zip(ArgumentTypes, (o, t) => {
-                    try
-                    {
-                        return ExpressionConversions.Convert(o.Expression, t);
-                    }
-                    catch(InvalidOperationException)
-                    {
-                        //if we cant convert to the argument type then something is wrong with the argument
-                        //so we will throw it up
-                        throw new FunctionArgumentTypeException(o.SourceMap, t, o.Expression.Type);
-                    }
-                });
+            var overload = MatchOverload(bracketOperands, out var functionArguments);
 
-            }
-
-            var functionSourceMap = StringSegment.Encompass(bracketOpen.SourceMap, operandSource);
+           
             var functionArgumentsArray = functionArguments.ToArray();
             Expression output;
             try
             {
-                output = ExpressionBuilder(functionArgumentsArray);
+                output = overload.ExpressionBuilder(functionArgumentsArray);
             }
             catch(Exception ex)
             {

@@ -11,7 +11,7 @@ namespace StringToExpression.Exceptions
         /// <summary>
         /// String segment that contains the bracket that contains the incorrect number of operands.
         /// </summary>
-        public readonly StringSegment BracketStringSegment;
+        public readonly StringSegment FunctionStringSegment;
 
         /// <summary>
         /// Expected number of operands.
@@ -26,13 +26,13 @@ namespace StringToExpression.Exceptions
         /// <summary>
         /// Initializes a new instance of the <see cref="FunctionArgumentCountException"/> class.
         /// </summary>
-        /// <param name="bracketStringSegment">The location of the function arguments.</param>
+        /// <param name="functionStringSegment">The location of the function arguments.</param>
         /// <param name="expectedOperandCount">The Expected number of operands.</param>
         /// <param name="actualOperandCount">The actual number of operands.</param>
-        public FunctionArgumentCountException(StringSegment bracketStringSegment, int expectedOperandCount, int actualOperandCount) 
-            : base(bracketStringSegment, $"Bracket '{bracketStringSegment.Value}' contains {actualOperandCount} operand{(actualOperandCount > 1 ? "s" : "")} but was expecting {expectedOperandCount} operand{(expectedOperandCount > 1 ? "s" : "")}")
+        public FunctionArgumentCountException(StringSegment functionStringSegment, int expectedOperandCount, int actualOperandCount) 
+            : base(functionStringSegment, $"Function '{functionStringSegment.Value}' contains {actualOperandCount} operand{(actualOperandCount > 1 ? "s" : "")} but was expecting {expectedOperandCount} operand{(expectedOperandCount > 1 ? "s" : "")}")
         {
-            BracketStringSegment = bracketStringSegment;
+            FunctionStringSegment = functionStringSegment;
             ExpectedOperandCount = expectedOperandCount;
             ActualOperandCount = actualOperandCount;
         }
