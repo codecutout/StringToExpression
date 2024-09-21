@@ -1,12 +1,14 @@
 ﻿using StringToExpression.GrammerDefinitions;
 using StringToExpression.Util;
 using System;
+using System.Diagnostics;
 
 namespace StringToExpression.Tokenizer
 {
     /// <summary>
     /// An indivdual piece of the complete input.
     /// </summary>
+    [DebuggerDisplay("{Value}")]
     public class Token
     {
         /// <summary>

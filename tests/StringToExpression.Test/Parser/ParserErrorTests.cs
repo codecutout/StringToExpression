@@ -95,8 +95,8 @@ namespace StringToExpression.Test
         [InlineData("", typeof(OperandExpectedException), 0, 0)]
         [InlineData("*", typeof(OperandExpectedException), 1, 1)]
 
-        [InlineData("Log(1024,2,2)", typeof(FunctionArgumentCountException), 4,12)]
-        [InlineData("Log(1024)", typeof(FunctionArgumentCountException), 4,8)]
+        [InlineData("Log(1024,2,2)", typeof(FunctionArgumentCountException), 0,13)]
+        [InlineData("Log(1024)", typeof(FunctionArgumentCountException), 0,9)]
         [InlineData("Log(1024,'2')", typeof(FunctionArgumentTypeException), 9,12)]
         [InlineData("2 + '2'", typeof(OperationInvalidException), 0,7)]
         [InlineData("2 + error(2,3)", typeof(OperationInvalidException), 4,14)]

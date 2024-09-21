@@ -274,6 +274,30 @@ namespace StringToExpression.Test
             var stringToExprssionException = Assert.Throws<OperationInvalidException>(() => new ODataFilterLanguage().Parse<LinqToQuerystringTestDataFixture.ConcreteClass>(query));
         }
 
+        [Theory]
+        [InlineData("ConcreteCollection/any(c: c/Age gt 4)")]
+        [InlineData("ConcreteCollection/any(c: c/Age lt 3)")]
+        [InlineData("ConcreteCollection/any(c: c/Age ge 4)")]
+        [InlineData("ConcreteCollection/any(c: c/Age ge 4) and Title eq 'Charles'")]
+        [InlineData("ConcreteCollection/any(c: c/Age lt 3 and c/Name eq 'Apple')")]
+        [InlineData("ConcreteCollection/any(c: c/Children/any(ci: ci/Age gt 41))")]
+        [InlineData("ConcreteCollection/any(c: c/Children/any(ci: ci/Age gt 41 and ci/Name eq 'Mark Ruffalo'))")]
+        [InlineData("ConcreteCollection/any(c: c/Children/any(ci: ci/Age gt 41) and c/Name eq 'Banana')")]
+        [InlineData("ConcreteCollection/any(c: c/Children/any(ci: ci/Age gt 41)) and Title eq 'David'")]
+        //[InlineData("ConcreteCollection/any(c: c/Name eq Concrete/Name)")] // I think linqToQuery is wrong here?
+        [InlineData("ConcreteCollection/all(c: c/Age ge 3)")]
+        [InlineData("ConcreteCollection/all(c: c/Age ge 3) and StringCollection/any(sc: sc eq 'Brad')")]
+        [InlineData("ConcreteCollection/all(c: c/Age ge 3) and Title eq 'Boris'")]
+        public void When_collection_filter_results_as_linqToQuerystring(string query)
+        {
+            var lingqToQuerystringFiltered = Data.ComplexCollection.LinqToQuerystring("?$filter=" + query).ToList();
+
+            var filter = new ODataFilterLanguage().Parse<LinqToQuerystringTestDataFixture.ComplexClass>(query);
+            var stringParserFiltered = Data.ComplexCollection.Where(filter).ToList();
+
+            Assert.Equal(lingqToQuerystringFiltered, stringParserFiltered);
+        }
+
 
         [Fact(Skip ="Performance sanity check.")]
         public void Should_be_faster_than_linqToQuerystring()

@@ -35,9 +35,9 @@ namespace StringToExpression.GrammerDefinitions
     public class OperatorDefinition : GrammerDefinition
     {
         /// <summary>
-        /// A function given zero or more operands expressions, outputs a new operand.
+        /// A function given the matched token and zero or more operands expressions, outputs a new operand.
         /// </summary>
-        public readonly Func<Expression[], Expression> ExpressionBuilder;
+        public readonly Func<string, Expression[], Expression> ExpressionBuilder;
 
         /// <summary>
         /// Positions where parameters can be found.
@@ -87,6 +87,28 @@ namespace StringToExpression.GrammerDefinitions
             int? orderOfPrecedence, 
             IEnumerable<RelativePosition> paramaterPositions, 
             Func<Expression[], Expression> expressionBuilder)
+            : this(name, regex, orderOfPrecedence, paramaterPositions, (_, parameters) => expressionBuilder(parameters))
+        {
+        }
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="OperatorDefinition"/> class.
+        /// </summary>
+        /// <param name="name">The name of the definition.</param>
+        /// <param name="regex">The regex to match tokens.</param>
+        /// <param name="orderOfPrecedence">The relative order this operator should be applied. Lower orders are applied first.</param>
+        /// <param name="paramaterPositions">The relative positions where parameters can be found.</param>
+        /// <param name="expressionBuilder">The function given the matched token and zero or more operands expressions, outputs a new operand.</param>
+        /// <exception cref="System.ArgumentNullException">
+        /// paramaterPositions
+        /// or
+        /// expressionBuilder
+        /// </exception>
+        public OperatorDefinition(string name,
+            string regex,
+            int? orderOfPrecedence,
+            IEnumerable<RelativePosition> paramaterPositions,
+            Func<string, Expression[], Expression> expressionBuilder)
             : base(name, regex)
         {
             if (paramaterPositions == null)
@@ -172,7 +194,7 @@ namespace StringToExpression.GrammerDefinitions
                 Expression expression;
                 try
                 {
-                    expression = ExpressionBuilder(args.Select(x => x.Expression).ToArray());
+                    expression = ExpressionBuilder(token.Value, args.Select(x => x.Expression).ToArray());
                 }catch(Exception ex)
                 {
                     throw new OperationInvalidException(sourceMapSpan, ex);
@@ -180,6 +202,12 @@ namespace StringToExpression.GrammerDefinitions
 
                 state.Operands.Push(new Operand(expression, sourceMapSpan));
             }));
+
+            // If all our operands are to the left, there is no reason not to just run this now
+            if(this.ParamaterPositions.All(x=>x == RelativePosition.Left))
+            {
+                state.Operators.Pop().Execute();
+            }
         }
     }
 }

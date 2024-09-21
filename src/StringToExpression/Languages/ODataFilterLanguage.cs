@@ -1,4 +1,5 @@
 ﻿using StringToExpression.GrammerDefinitions;
+using StringToExpression.Languages.StringToExpression.GrammerDefinitions;
 using StringToExpression.Util;
 using System;
 using System.Collections.Generic;
@@ -167,14 +168,18 @@ namespace StringToExpression.LanguageDefinitions
         /// <returns></returns>
         protected virtual IEnumerable<GrammerDefinition> AllDefinitions()
         {
-            IEnumerable<FunctionCallDefinition> functions;
+            IEnumerable<BracketOpenDefinition> functions;
+            IEnumerable<BracketOpenDefinition> collectionMethods;
             var definitions = new List<GrammerDefinition>();
             definitions.AddRange(TypeDefinitions());
             definitions.AddRange(functions = FunctionDefinitions());
-            definitions.AddRange(BracketDefinitions(functions));
+            definitions.AddRange(collectionMethods = CollectionMethodDefinitions());
+
+            definitions.AddRange(BracketDefinitions(functions.Concat(collectionMethods)));
             definitions.AddRange(LogicalOperatorDefinitions());
             definitions.AddRange(ArithmeticOperatorDefinitions());
             definitions.AddRange(PropertyDefinitions());
+
             definitions.AddRange(WhitespaceDefinitions());
             return definitions;
         }
@@ -357,7 +362,7 @@ namespace StringToExpression.LanguageDefinitions
         /// </summary>
         /// <param name="functionCalls">The function calls in the language. (used as opening brackets)</param>
         /// <returns></returns>
-        protected virtual IEnumerable<GrammerDefinition> BracketDefinitions(IEnumerable<FunctionCallDefinition> functionCalls)
+        protected virtual IEnumerable<GrammerDefinition> BracketDefinitions(IEnumerable<BracketOpenDefinition> openBrackets)
         {
             BracketOpenDefinition openBracket;
             ListDelimiterDefinition delimeter;
@@ -371,7 +376,7 @@ namespace StringToExpression.LanguageDefinitions
                 new BracketCloseDefinition(
                     name: "CLOSE_BRACKET",
                     regex: @"\)",
-                    bracketOpenDefinitions: new[] { openBracket }.Concat(functionCalls),
+                    bracketOpenDefinitions: new[] { openBracket }.Concat(openBrackets),
                     listDelimeterDefinition: delimeter)
             };
         }
@@ -588,21 +593,49 @@ namespace StringToExpression.LanguageDefinitions
             };
         }
 
+        protected virtual IEnumerable<CollectionMethodDefinition> CollectionMethodDefinitions()
+        {
+            return new[]
+            {
+                 new CollectionMethodDefinition(
+                    name: "FN_ANY",
+                    collectionMethodName: "any"
+                 ),
+                new CollectionMethodDefinition(
+                    name: "FN_ALL",
+                    collectionMethodName: "all"
+                 )
+            };
+           
+        }
+
         /// <summary>
         /// Returns the definitions for property names used within the language.
         /// </summary>
         /// <returns></returns>
         protected virtual IEnumerable<GrammerDefinition> PropertyDefinitions()
         {
-            return new[]
+            return new GrammerDefinition[]
             {
                  //Properties
                  new OperandDefinition(
-                    name:"PROPERTY_PATH",
-                    regex: @"(?<![0-9])([A-Za-z_][A-Za-z0-9_]*/?)+",
+                    name:"VARIABLE",
+                    regex: @"(?<![0-9])([A-Za-z_][A-Za-z0-9_]*)",
                     expressionBuilder: (value, parameters) => {
-                        return value.Split('/').Aggregate((Expression)parameters[0], (exp, prop)=> Expression.MakeMemberAccess(exp, TypeShim.GetProperty(exp.Type, prop)));
+                        //either referencing a parameter or a property of our first parameter
+                        return (Expression)parameters.FirstOrDefault(x=>x.Name == value)
+                            ?? Expression.MakeMemberAccess(parameters[0], TypeShim.GetProperty(parameters[0].Type, value));
                     }),
+
+                 new UnaryOperatorDefinition(
+                    name:"PROPERTY",
+                    regex: @"/([A-Za-z_][A-Za-z0-9_]*)(?![A-Za-z0-9_]*\()",
+                    orderOfPrecedence: 0,
+                    operandPosition: RelativePosition.Left,
+                    expressionBuilder: (value, left) => {
+                        return Expression.MakeMemberAccess(left, TypeShim.GetProperty(left.Type, value.TrimStart('/')));
+                    })
+
             };
         }
 

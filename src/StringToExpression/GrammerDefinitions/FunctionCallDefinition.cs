@@ -94,8 +94,13 @@ namespace StringToExpression.GrammerDefinitions
         }
 
 
-        public Overload MatchOverload(Stack<Operand> bracketOperands, out IEnumerable<Expression> typedArguments)
+        public Overload MatchOverload(Operator bracketOpen, Stack<Operand> bracketOperands, Operator bracketClose, out IEnumerable<Expression> typedArguments)
         {
+            var functionSourceMap = StringSegment.Encompass(
+                bracketOpen.SourceMap,
+                StringSegment.Encompass(bracketOperands.Select(x => x.SourceMap)),
+                bracketClose.SourceMap);
+
             var possibleOverloads = Overloads
                .Where(x => x.ArgumentTypes == null || x.ArgumentTypes.Count == bracketOperands.Count)
                .OrderBy(x=>x.ArgumentTypes == null);
@@ -104,7 +109,7 @@ namespace StringToExpression.GrammerDefinitions
             if (!possibleOverloads.Any())
             {
                 throw new FunctionArgumentCountException(
-                    StringSegment.Encompass(bracketOperands.Select(x => x.SourceMap)), 
+                    functionSourceMap, 
                     Overloads.First().ArgumentTypes.Count, 
                     bracketOperands.Count);
             }
@@ -162,7 +167,7 @@ namespace StringToExpression.GrammerDefinitions
                 StringSegment.Encompass(bracketOperands.Select(x => x.SourceMap)), 
                 bracketClose.SourceMap);
 
-            var overload = MatchOverload(bracketOperands, out var functionArguments);
+            var overload = MatchOverload(bracketOpen, bracketOperands, bracketClose, out var functionArguments);
 
            
             var functionArgumentsArray = functionArguments.ToArray();

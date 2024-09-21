@@ -37,17 +37,38 @@ namespace StringToExpression.Test.Fixtures
 
             ConcreteCollection = new List<ConcreteClass>
             {
-                InstanceBuilders.BuildConcrete("Apple", 1, new DateTime(2002, 01, 01), true, 10000000000, 111.111, 111.111f, 0x00, 0.1m, guidArray[0]),
-                InstanceBuilders.BuildConcrete("Apple", 2, new DateTime(2005, 01, 01), false, 30000000000, 333.333, 333.333f, 0x22, 0.3m, guidArray[2]),
-                InstanceBuilders.BuildConcrete("Custard", 1, new DateTime(2003, 01, 01), true, 50000000000, 555.555, 555.555f, 0xDD, 0.5m, guidArray[4]),
-                InstanceBuilders.BuildConcrete("Custard", 2, new DateTime(2002, 01, 01), false, 30000000000, 333.333, 333.333f, 0x00, 0.3m, guidArray[2]),
-                InstanceBuilders.BuildConcrete("Custard", 3, new DateTime(2002, 01, 01), true, 40000000000, 444.444, 444.444f, 0x22, 0.4m, guidArray[3]),
-                InstanceBuilders.BuildConcrete("Banana", 3, new DateTime(2003, 01, 01), false, 10000000000, 111.111, 111.111f, 0x00, 0.1m, guidArray[0]),
-                InstanceBuilders.BuildConcrete("Eggs", 1, new DateTime(2005, 01, 01), true, 40000000000, 444.444, 444.444f, 0xCC, 0.4m, guidArray[3]),
-                InstanceBuilders.BuildConcrete("Eggs", 3, new DateTime(2001, 01, 01), false, 20000000000, 222.222, 222.222f, 0xCC, 0.2m, guidArray[1]),
-                InstanceBuilders.BuildConcrete("Dogfood", 4, new DateTime(2003, 01, 01), true, 30000000000, 333.333, 333.333f, 0xEE, 0.3m, guidArray[2]),
-                InstanceBuilders.BuildConcrete("Dogfood", 4, new DateTime(2004, 01, 01), false, 10000000000, 111.111, 111.111f, 0xDD, 0.1m, guidArray[0]),
-                InstanceBuilders.BuildConcrete("Dogfood", 5, new DateTime(2001, 01, 01), true, 20000000000, 222.222, 222.222f, 0xCC, 0.2m, guidArray[1])
+                InstanceBuilders.BuildConcrete("Apple", 1, new DateTime(2002, 01, 01), true, 10000000000, 111.111, 111.111f, 0x00, 0.1m, guidArray[0], new[] { 
+                        InstanceBuilders.BuildEdgeCase("John Belushi", 33, new DateTime(1949, 1, 24), true) 
+                }),
+                InstanceBuilders.BuildConcrete("Apple", 2, new DateTime(2005, 01, 01), false, 30000000000, 333.333, 333.333f, 0x22, 0.3m, guidArray[2], Array.Empty<EdgeCaseClass>()),
+                InstanceBuilders.BuildConcrete("Custard", 1, new DateTime(2003, 01, 01), true, 50000000000, 555.555, 555.555f, 0xDD, 0.5m, guidArray[4], new[] { 
+                    InstanceBuilders.BuildEdgeCase("Scarlett Johansson", 31, new DateTime(1949, 1, 24), true),
+                    InstanceBuilders.BuildEdgeCase("Chris Evans", 41, new DateTime(1949, 1, 24), true)
+                }),
+                InstanceBuilders.BuildConcrete("Custard", 2, new DateTime(2002, 01, 01), false, 30000000000, 333.333, 333.333f, 0x00, 0.3m, guidArray[2],  new[] { 
+                    InstanceBuilders.BuildEdgeCase("Mark Ruffalo", 43, new DateTime(1949, 1, 24), true),
+                    InstanceBuilders.BuildEdgeCase("Chris Evans", 41, new DateTime(1949, 1, 24), true)
+                }),
+                InstanceBuilders.BuildConcrete("Custard", 3, new DateTime(2002, 01, 01), true, 40000000000, 444.444, 444.444f, 0x22, 0.4m, guidArray[3], new[] { 
+                    InstanceBuilders.BuildEdgeCase("Chris Hemsworht", 37, new DateTime(1949, 1, 24), true),
+                    InstanceBuilders.BuildEdgeCase("Scarlett Johansson", 31, new DateTime(1949, 1, 24), true) 
+                }),
+                InstanceBuilders.BuildConcrete("Banana", 3, new DateTime(2003, 01, 01), false, 10000000000, 111.111, 111.111f, 0x00, 0.1m, guidArray[0], new[] { 
+                    InstanceBuilders.BuildEdgeCase("Mark Ruffalo", 43, new DateTime(1949, 1, 24), true)
+                }),
+                InstanceBuilders.BuildConcrete("Eggs", 1, new DateTime(2005, 01, 01), true, 40000000000, 444.444, 444.444f, 0xCC, 0.4m, guidArray[3], new[] { 
+                    InstanceBuilders.BuildEdgeCase("John Belushi", 33, new DateTime(1949, 1, 24), true),
+                    InstanceBuilders.BuildEdgeCase("Scarlett Johansson", 31, new DateTime(1949, 1, 24), true),
+                    InstanceBuilders.BuildEdgeCase("Chris Hemsworht", 37, new DateTime(1949, 1, 24), true) 
+                }),
+                InstanceBuilders.BuildConcrete("Eggs", 3, new DateTime(2001, 01, 01), false, 20000000000, 222.222, 222.222f, 0xCC, 0.2m, guidArray[1], new [] { 
+                    InstanceBuilders.BuildEdgeCase("Tom Holland", 27, new DateTime(1992, 12, 12), false)
+                }),
+                InstanceBuilders.BuildConcrete("Dogfood", 4, new DateTime(2003, 01, 01), true, 30000000000, 333.333, 333.333f, 0xEE, 0.3m, guidArray[2], new [] { 
+                    InstanceBuilders.BuildEdgeCase("Jeremy Renner", 40, new DateTime(1992, 12, 12), false)
+                }),
+                InstanceBuilders.BuildConcrete("Dogfood", 4, new DateTime(2004, 01, 01), false, 10000000000, 111.111, 111.111f, 0xDD, 0.1m, guidArray[0], Array.Empty<EdgeCaseClass>()),
+                InstanceBuilders.BuildConcrete("Dogfood", 5, new DateTime(2001, 01, 01), true, 20000000000, 222.222, 222.222f, 0xCC, 0.2m, guidArray[1],  Array.Empty<EdgeCaseClass>())
             }.AsQueryable();
 
             FunctionConcreteCollection = new List<ConcreteClass>
@@ -77,11 +98,40 @@ namespace StringToExpression.Test.Fixtures
 
             ComplexCollection = new List<ComplexClass>
             {
-                new ComplexClass { Title = "Charles", Concrete = InstanceBuilders.BuildConcrete("Apple", 5, new DateTime(2005, 01, 01), true) },
-                new ComplexClass { Title = "Andrew", Concrete = InstanceBuilders.BuildConcrete("Custard", 3, new DateTime(2007, 01, 01), true) },
-                new ComplexClass { Title = "David", Concrete = InstanceBuilders.BuildConcrete("Banana", 2, new DateTime(2003, 01, 01), false) },
-                new ComplexClass { Title = "Edward", Concrete = InstanceBuilders.BuildConcrete("Eggs", 1, new DateTime(2000, 01, 01), true) },
-                new ComplexClass { Title = "Boris", Concrete = InstanceBuilders.BuildConcrete("Dogfood", 4, new DateTime(2009, 01, 01), false) }
+                new ComplexClass { Title = "Charles", Concrete = InstanceBuilders.BuildConcrete("Apple", 5, new DateTime(2005, 01, 01), true), StringCollection = new List<string>() { "Paul", "Leonardo", "Emilia" },
+                    ConcreteCollection = new List<ConcreteClass> {  InstanceBuilders.BuildConcrete("Apple", 5, new DateTime(2002, 01, 01), true, 10000000000, 111.111, 111.111f, 0x00, 0.1m, guidArray[0],
+                                                                        new[] { InstanceBuilders.BuildEdgeCase("John Belushi", 33, new DateTime(1949, 1, 24), true) }),
+                                                                    InstanceBuilders.BuildConcrete("Potato", 2, new DateTime(2005, 01, 01), false, 30000000000, 333.333, 333.333f, 0x22, 0.3m, guidArray[2],
+                                                                        Array.Empty<EdgeCaseClass>()) } },
+
+                new ComplexClass { Title = "Andrew", Concrete = InstanceBuilders.BuildConcrete("Custard", 3, new DateTime(2007, 01, 01), true), StringCollection = new List<string>() { "John", "Johnny", "Emilia" },
+                    ConcreteCollection = new List<ConcreteClass> {  InstanceBuilders.BuildConcrete("Custard", 1, new DateTime(2003, 01, 01), true, 50000000000, 555.555, 555.555f, 0xDD, 0.5m, guidArray[4],
+                                                                        new[] { InstanceBuilders.BuildEdgeCase("Scarlett Johansson", 31, new DateTime(1949, 1, 24), true),
+                                                                                InstanceBuilders.BuildEdgeCase("Chris Evans", 41, new DateTime(1949, 1, 24), true)}),
+                                                                    InstanceBuilders.BuildConcrete("Pear", 4, new DateTime(2002, 01, 01), false, 30000000000, 333.333, 333.333f, 0x00, 0.3m, guidArray[2],
+                                                                        new[] { InstanceBuilders.BuildEdgeCase("Mark Ruffalo", 43, new DateTime(1949, 1, 24), true),
+                                                                                InstanceBuilders.BuildEdgeCase("Chris Evans", 41, new DateTime(1949, 1, 24), true)}),
+                                                                    InstanceBuilders.BuildConcrete("Peach", 3, new DateTime(2002, 01, 01), true, 40000000000, 444.444, 444.444f, 0x22, 0.4m, guidArray[3],
+                                                                        new[] { InstanceBuilders.BuildEdgeCase("Chris Hemsworht", 37, new DateTime(1949, 1, 24), true),
+                                                                               InstanceBuilders.BuildEdgeCase("Scarlett Johansson", 31, new DateTime(1949, 1, 24), true) }), } },
+
+                new ComplexClass { Title = "David", Concrete = InstanceBuilders.BuildConcrete("Banana", 2, new DateTime(2003, 01, 01), false), StringCollection = new List<string>() { "Brad", "Angelina"  },
+                    ConcreteCollection = new List<ConcreteClass> { InstanceBuilders.BuildConcrete("Banana", 3, new DateTime(2003, 01, 01), false, 10000000000, 111.111, 111.111f, 0x00, 0.1m, guidArray[0],
+                                                                        new[] { InstanceBuilders.BuildEdgeCase("Mark Ruffalo", 43, new DateTime(1949, 1, 24), true) }), } },
+                new ComplexClass { Title = "Edward", Concrete = InstanceBuilders.BuildConcrete("Eggs", 1, new DateTime(2000, 01, 01), true), StringCollection = new List<string>() { "John", "Christopher", "Emma" },
+                    ConcreteCollection = new List<ConcreteClass> {  InstanceBuilders.BuildConcrete("Bacon", 1, new DateTime(2005, 01, 01), true, 40000000000, 444.444, 444.444f, 0xCC, 0.4m, guidArray[3],
+                                                                        new[] { InstanceBuilders.BuildEdgeCase("John Belushi", 33, new DateTime(1949, 1, 24), true),
+                                                                                InstanceBuilders.BuildEdgeCase("Scarlett Johansson", 31, new DateTime(1949, 1, 24), true),
+                                                                                InstanceBuilders.BuildEdgeCase("Chris Hemsworht", 37, new DateTime(1949, 1, 24), true) }),
+                                                                    InstanceBuilders.BuildConcrete("Tea", 3, new DateTime(2001, 01, 01), false, 20000000000, 222.222, 222.222f, 0xCC, 0.2m, guidArray[1],
+                                                                        new [] { InstanceBuilders.BuildEdgeCase("Tom Holland", 27, new DateTime(1992, 12, 12), false)} ) } },
+                new ComplexClass { Title = "Boris", Concrete = InstanceBuilders.BuildConcrete("Dogfood", 4, new DateTime(2009, 01, 01), false), StringCollection = new List<string>() { "John", "Clint", "Helen" },
+                    ConcreteCollection = new List<ConcreteClass> {  InstanceBuilders.BuildConcrete("Ketchup", 4, new DateTime(2003, 01, 01), true, 30000000000, 333.333, 333.333f, 0xEE, 0.3m, guidArray[2],
+                                                                        new [] { InstanceBuilders.BuildEdgeCase("Jeremy Renner", 40, new DateTime(1992, 12, 12), false)}),
+                                                                    InstanceBuilders.BuildConcrete("Toast", 4, new DateTime(2004, 01, 01), false, 10000000000, 111.111, 111.111f, 0xDD, 0.1m, guidArray[0],
+                                                                        Array.Empty<EdgeCaseClass>()),
+                                                                    InstanceBuilders.BuildConcrete("Butter", 5, new DateTime(2001, 01, 01), true, 20000000000, 222.222, 222.222f, 0xCC, 0.2m, guidArray[1],
+                                                                        Array.Empty<EdgeCaseClass>()) } }
             }.AsQueryable();
 
             NullableCollection = new List<NullableClass>
@@ -106,6 +156,11 @@ namespace StringToExpression.Test.Fixtures
             public static ConcreteClass BuildConcrete(string name, int age, DateTime date, bool complete, long population, double value, float cost, byte code, decimal score, Guid guid)
             {
                 return new ConcreteClass { Name = name, Date = date, Age = age, Complete = complete, Population = population, Value = value, Cost = cost, Code = code, Score = score, Guid = guid };
+            }
+
+            public static ConcreteClass BuildConcrete(string name, int age, DateTime date, bool complete, long population, double value, float cost, byte code, decimal score, Guid guid, EdgeCaseClass[] children)
+            {
+                return new ConcreteClass { Name = name, Date = date, Age = age, Complete = complete, Population = population, Value = value, Cost = cost, Code = code, Score = score, Guid = guid, Children = children.ToList() };
             }
 
             public static NullableClass BuildNull()
