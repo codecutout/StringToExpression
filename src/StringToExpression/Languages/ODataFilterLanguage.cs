@@ -32,6 +32,11 @@ namespace StringToExpression.LanguageDefinitions
             public static MethodInfo EndsWith = Type<string>.Method(x => x.EndsWith(default(string)));
 
             /// <summary>
+            /// The MemberInfo for the Length property
+            /// </summary>
+            public static MemberInfo Length = Type<string>.Member(x => x.Length);
+
+            /// <summary>
             /// The MethodInfo for the Contains method
             /// </summary>
             public static MethodInfo Contains = Type<string>.Method(x => x.Contains(default(string)));
@@ -45,6 +50,36 @@ namespace StringToExpression.LanguageDefinitions
             /// The MethodInfo for the ToUpper method
             /// </summary>
             public static MethodInfo ToUpper = Type<string>.Method(x => x.ToUpper());
+
+            /// <summary>
+            /// The MethodInfo for the IndexOf method
+            /// </summary>
+            public static MethodInfo IndexOf = Type<string>.Method(x => x.IndexOf(default(string)));
+
+            /// <summary>
+            /// The MethodInfo for the Replace method
+            /// </summary>
+            public static MethodInfo Replace = Type<string>.Method(x => x.Replace(default(string), default(string)));
+
+            /// <summary>
+            /// The MethodInfo for the Substring method
+            /// </summary>
+            public static MethodInfo Substring = Type<string>.Method(x => x.Substring(default(int)));
+
+            /// <summary>
+            /// The MethodInfo for the Trim method
+            /// </summary>
+            public static MethodInfo Trim = Type<string>.Method(x => x.Trim());
+
+            /// <summary>
+            /// The MethodInfo for the Trim method
+            /// </summary>
+            public static MethodInfo Concat = Type<string>.Method(x => string.Concat(default(string), default(string)));
+
+            /// <summary>
+            /// The MethodInfo for the Substring method that contains a length parameter
+            /// </summary>
+            public static MethodInfo SubstringWithLength = Type<string>.Method(x => x.Substring(default(int), default(int)));
         }
 
         /// <summary>
@@ -81,6 +116,24 @@ namespace StringToExpression.LanguageDefinitions
             /// The MemberInfo for the Second property
             /// </summary>
             public static MemberInfo Second = Type<DateTime>.Member(x => x.Second);
+        }
+
+        protected static class MathMembers
+        {
+            /// <summary>
+            /// The MethodInfo for the Round method
+            /// </summary>
+            public static MethodInfo Round = Type<object>.Method(x => Math.Round(default(double)));
+
+            /// <summary>
+            /// The MethodInfo for the Floor method
+            /// </summary>
+            public static MethodInfo Floor = Type<object>.Method(x => Math.Floor(default(double)));
+
+            /// <summary>
+            /// The MethodInfo for the Ceil method
+            /// </summary>
+            public static MethodInfo Ceiling = Type<object>.Method(x => Math.Ceiling(default(double)));
         }
 
         private readonly Language language;
@@ -379,6 +432,76 @@ namespace StringToExpression.LanguageDefinitions
                             instance:parameters[0],
                             method:StringMembers.ToUpper);
                     }),
+                new FunctionCallDefinition(
+                    name:"FN_LENGTH",
+                    regex: @"length\(",
+                    argumentTypes: new[] {typeof(string) },
+                    expressionBuilder: (parameters) => {
+                        return Expression.MakeMemberAccess(
+                            expression:parameters[0],
+                            member:StringMembers.Length);
+                    }),
+                new FunctionCallDefinition(
+                    name:"FN_INDEXOF",
+                    regex: @"indexof\(",
+                    argumentTypes: new[] {typeof(string), typeof(string) },
+                    expressionBuilder: (parameters) => {
+                        return Expression.Call(
+                            instance:parameters[0],
+                            method:StringMembers.IndexOf,
+                            arguments: new [] { parameters[1] });
+                    }),
+                new FunctionCallDefinition(
+                    name:"FN_REPLACE",
+                    regex: @"replace\(",
+                    argumentTypes: new[] {typeof(string), typeof(string), typeof(string) },
+                    expressionBuilder: (parameters) => {
+                        return Expression.Call(
+                            instance:parameters[0],
+                            method:StringMembers.Replace,
+                            arguments: new [] { parameters[1], parameters[2] });
+                    }),
+                new FunctionCallDefinition(
+                    name:"FN_SUBSTRING",
+                    regex: @"substring\(",
+                    overloads: new[]
+                    {
+                        new FunctionCallDefinition.Overload(
+                            argumentTypes: new[] {typeof(string), typeof(int)},
+                            expressionBuilder: (parameters) => {
+                                return Expression.Call(
+                                    instance:parameters[0],
+                                    method:StringMembers.Substring,
+                                    arguments: new [] { parameters[1]});
+                        }),
+                        new FunctionCallDefinition.Overload(
+                            argumentTypes: new[] {typeof(string), typeof(int), typeof(int)},
+                            expressionBuilder: (parameters) => {
+                                return Expression.Call(
+                                    instance:parameters[0],
+                                    method:StringMembers.SubstringWithLength,
+                                    arguments: new [] { parameters[1], parameters[2]});
+                        })
+                    }),
+                new FunctionCallDefinition(
+                    name:"FN_TRIM",
+                    regex: @"trim\(",
+                    argumentTypes: new []{typeof(string)},
+                    expressionBuilder: (parameters) => {
+                        return Expression.Call(
+                            instance:parameters[0],
+                            method:StringMembers.Trim);
+                    }),
+                new FunctionCallDefinition(
+                    name:"FN_CONCAT",
+                    regex: @"concat\(",
+                    argumentTypes: new[] {typeof(string), typeof(string)},
+                    expressionBuilder: (parameters) => {
+                        return Expression.Call(
+                            method:StringMembers.Concat,
+                            arguments: new [] { parameters[0], parameters[1]});
+                    }),
+
 
                  new FunctionCallDefinition(
                     name:"FN_DAY",
@@ -398,7 +521,7 @@ namespace StringToExpression.LanguageDefinitions
                             parameters[0],
                             DateTimeMembers.Hour);
                     }),
-                  new FunctionCallDefinition(
+                new FunctionCallDefinition(
                     name:"FN_MINUTE",
                     regex: @"minute\(",
                     argumentTypes: new[] {typeof(DateTime) },
@@ -407,7 +530,7 @@ namespace StringToExpression.LanguageDefinitions
                             parameters[0],
                             DateTimeMembers.Minute);
                     }),
-                  new FunctionCallDefinition(
+                new FunctionCallDefinition(
                     name:"FN_MONTH",
                     regex: @"month\(",
                     argumentTypes: new[] {typeof(DateTime) },
@@ -425,7 +548,7 @@ namespace StringToExpression.LanguageDefinitions
                             parameters[0],
                             DateTimeMembers.Year);
                     }),
-                 new FunctionCallDefinition(
+                new FunctionCallDefinition(
                     name:"FN_SECOND",
                     regex: @"second\(",
                     argumentTypes: new[] {typeof(DateTime) },
@@ -433,6 +556,34 @@ namespace StringToExpression.LanguageDefinitions
                         return Expression.MakeMemberAccess(
                             parameters[0],
                             DateTimeMembers.Second);
+                    }),
+
+                new FunctionCallDefinition(
+                    name:"FN_ROUND",
+                    regex: @"round\(",
+                    argumentTypes: new[] {typeof(double) },
+                    expressionBuilder: (parameters) => {
+                        return Expression.Call(
+                            method:MathMembers.Round,
+                            arguments: new [] { parameters[0]});
+                    }),
+                new FunctionCallDefinition(
+                    name:"FN_FLOOR",
+                    regex: @"floor\(",
+                    argumentTypes: new[] {typeof(double) },
+                    expressionBuilder: (parameters) => {
+                        return Expression.Call(
+                            method:MathMembers.Floor,
+                            arguments: new [] { parameters[0]});
+                    }),
+                new FunctionCallDefinition(
+                    name:"FN_CEILING",
+                    regex: @"ceiling\(",
+                    argumentTypes: new[] {typeof(double) },
+                    expressionBuilder: (parameters) => {
+                        return Expression.Call(
+                            method:MathMembers.Ceiling,
+                            arguments: new [] { parameters[0]});
                     }),
             };
         }

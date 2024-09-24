@@ -99,7 +99,7 @@ namespace StringToExpression.Test
         [InlineData("Log(1024)", typeof(FunctionArgumentCountException), 4,8)]
         [InlineData("Log(1024,'2')", typeof(FunctionArgumentTypeException), 9,12)]
         [InlineData("2 + '2'", typeof(OperationInvalidException), 0,7)]
-        [InlineData("2 + error(2,3)", typeof(OperationInvalidException), 4,13)]
+        [InlineData("2 + error(2,3)", typeof(OperationInvalidException), 4,14)]
         [InlineData("2 + 💩 * 3", typeof(OperationInvalidException), 4,6)] //also interesting as double-byte unicode have length 2
 
 
