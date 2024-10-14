@@ -1,4 +1,6 @@
-﻿using StringToExpression.LanguageDefinitions;
+﻿using StringToExpression.Exceptions;
+using StringToExpression.LanguageDefinitions;
+using StringToExpression.Test.Fixtures;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -69,6 +71,18 @@ namespace StringToExpression.Test.Languages.ODataFilter
             var compiled = new ODataFilterLanguage().Parse<object>(query).Compile();
             Assert.Equal(expectedMatch, compiled(null));
 
+        }
+
+        [Theory]
+        [InlineData("(6 and 5) eq 4")]
+        [InlineData("(6 or 5) eq 7")]
+        [InlineData("'leet' eq 1337")]
+        public void When_invalid_operations_should_throw(string query)
+        {
+            Assert.Throws<OperationInvalidException>(() =>
+            {
+                new ODataFilterLanguage().Parse<LinqToQuerystringTestDataFixture.ConcreteClass>(query);
+            });
         }
     }
 }
