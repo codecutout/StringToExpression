@@ -297,12 +297,12 @@ namespace StringToExpression.LanguageDefinitions
                     name:"AND",
                     regex: @"\b(and)\b",
                     orderOfPrecedence:17,
-                    expressionBuilder: (left,right) => Expression.And(left, right)),
+                    expressionBuilder: (left,right) => Expression.AndAlso(left, right)),
                 new BinaryOperatorDefinition(
                     name:"OR",
                     regex: @"\b(or)\b",
                     orderOfPrecedence:18,
-                    expressionBuilder: (left,right) => Expression.Or(left, right)),
+                    expressionBuilder: (left,right) => Expression.OrElse(left, right)),
 
                 new UnaryOperatorDefinition(
                     name:"NOT",
