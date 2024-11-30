@@ -184,3 +184,42 @@ The parsing is done in roughly three steps
 3. *Execute Operators* -Once all the tokens are Applied we will start poping Operators off the stack and executing them. When an `Operator` executes its generally expected that it will consume one or more `Operands` and create one `Operand`. This way by the time we apply all the operators we should only have a single `Operand` on the stack, that is our result.
 
 To customize you can make your own `GrammerDefinition` and implment the `Apply` method to meet your purposes.
+
+## How to use complex object?
+
+To perform an operation accessing a property of a complex object, it is necessary to use a slash
+* `/` - Accesses the value of the child property when having a complex object
+
+Example: 
+```csharp
+//Concrete class
+public class Address {
+
+  public string Street { get; set; }
+
+  public string City { get; set; }
+
+  public string Country { get; set; }
+
+  public string ZIPCode { get; set; }
+
+}
+
+//Complex class
+public class Custumer {
+
+   public string Name { get; set; }
+
+   public string Email { get; set; }
+
+   public string Phone { get; set; }
+
+   public Address Address;
+  
+}
+
+```
+*  When filtering the customer, this expression can be used to access the data of the "Address" of its child
+```csharp
+   var filter = new ODataFilterLanguage().Parse<Custumer>("Adress/City ne null and Adress/ZipCode eq '000990-00'");
+```
